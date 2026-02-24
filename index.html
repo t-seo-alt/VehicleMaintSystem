@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEHICLE SYS-COM | メンテナンス管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #0ff;
+            --neon-blue: #08f;
+            --neon-red: #f04;
+            --neon-green: #0f8;
+            --neon-yellow: #ff0;
+            --bg-dark: #050a15;
+            --panel-bg: rgba(5, 15, 30, 0.7);
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: var(--bg-dark);
+            color: #e0f2fe;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sys-font { font-family: 'Orbitron', sans-serif; }
+
+        /* HUD Panels */
+        .hud-panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1) inset, 0 0 10px rgba(0, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            position: relative;
+        }
+        
+        .hud-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 10px; height: 10px;
+            border-top: 2px solid var(--neon-cyan);
+            border-left: 2px solid var(--neon-cyan);
+        }
+        .hud-panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0; width: 10px; height: 10px;
+            border-bottom: 2px solid var(--neon-cyan);
+            border-right: 2px solid var(--neon-cyan);
+        }
+
+        /* Scanline effect */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.3;
+        }
+
+        /* Neon Text */
+        .text-neon-cyan {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+        .text-neon-red {
+            color: var(--neon-red);
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+        .text-neon-yellow {
+            color: var(--neon-yellow);
+            text-shadow: 0 0 5px var(--neon-yellow);
+        }
+        .text-neon-green {
+            color: var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        /* Status Bars */
+        .status-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #111;
+            border: 1px solid #333;
+            margin-top: 8px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .status-bar-fill {
+            height: 100%;
+            transition: width 0.5s ease-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); border-left: 1px solid rgba(0,255,255,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.5); }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,255,0.8); }
+
+        /* Glitch animation for title */
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+        .glitch-hover:hover { animation: glitch 0.2s linear infinite; }
+
+        /* Modal */
+        .modal-overlay {
+            background: rgba(0, 5, 15, 0.85);
+            backdrop-filter: blur(10px);
+        }
+        
+        input[type="date"], input[type="text"] {
+            background: rgba(0, 20, 40, 0.8);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 0.5rem;
+            outline: none;
+            width: 100%;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(130deg);
+        }
+    </style>
+</head>
+<body class="text-sm">
+    <div class="scanlines"></div>
+
+    <!-- Header -->
+    <header class="flex justify-between items-center p-4 border-b border-cyan-800 bg-black/60 z-10 relative shadow-[0_4px_15px_rgba(0,255,255,0.1)]">
+        <div class="flex items-center gap-4">
+            <i class="fas fa-satellite-dish text-neon-cyan animate-pulse text-2xl"></i>
+            <div>
+                <h1 class="sys-font text-2xl font-bold text-neon-cyan tracking-widest glitch-hover">VEHICLE SYS-COM</h1>
+                <div class="text-[10px] text-cyan-600 tracking-[0.2em]">PERSONAL MAINTENANCE DATABASE V2.0</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="text-right">
+                <div class="sys-font text-cyan-400" id="current-time">00:00:00</div>
+                <div class="text-[10px] text-cyan-700">SYSTEM STATUS: <span id="auth-status" class="text-neon-yellow animate-pulse">CONNECTING...</span></div>
+            </div>
+            <button onclick="openAddVehicleModal()" class="hud-panel px-4 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center gap-2 cursor-pointer relative z-20">
+                <i class="fas fa-plus"></i> ADD VEHICLE
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative z-10">
+        <!-- Sidebar (Vehicle List) -->
+        <aside class="w-64 border-r border-cyan-800 bg-black/40 flex flex-col p-4 gap-4 overflow-y-auto">
+            <div class="text-xs text-cyan-600 sys-font border-b border-cyan-800/50 pb-2 mb-2">TARGET SELECT</div>
+            <div id="vehicle-list" class="flex flex-col gap-3">
+                <!-- Vehicle items injected here -->
+            </div>
+        </aside>
+
+        <!-- Main Dashboard -->
+        <main class="flex-1 p-6 overflow-y-auto">
+            <div id="dashboard-content" class="max-w-6xl mx-auto hidden flex-col gap-6">
+                
+                <!-- Top Section: Vehicle Info & Shakensho -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Vehicle Identity -->
+                    <div class="hud-panel p-5 lg:col-span-1">
+                        <div class="flex justify-between items-start mb-4">
+                            <h2 class="sys-font text-neon-cyan text-lg"><i class="fas fa-car mr-2"></i>IDENTITY</h2>
+                            <div class="flex gap-4">
+                                <button onclick="editCurrentVehicle()" class="text-cyan-700 hover:text-cyan-300 transition-colors" title="EDIT DATA"><i class="fas fa-edit"></i></button>
+                                <button onclick="confirmDeleteVehicle()" class="text-red-900 hover:text-neon-red transition-colors" title="DELETE TARGET"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center mb-4">
+                            <div class="w-32 h-32 rounded-full border-2 border-cyan-600 p-1 mb-3 relative overflow-hidden group cursor-pointer" onclick="document.getElementById('image-upload').click()" title="UPLOAD IMAGE">
+                                <div class="absolute inset-0 bg-cyan-900/30 group-hover:bg-cyan-500/30 transition-colors z-10 flex items-center justify-center">
+                                    <i class="fas fa-camera text-white opacity-0 group-hover:opacity-100 transition-opacity text-2xl drop-shadow-md"></i>
+                                </div>
+                                <div id="v-image-container" class="w-full h-full bg-black rounded-full flex items-center justify-center overflow-hidden">
+                                     <i class="fas fa-car-side text-6xl text-cyan-800"></i>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-white tracking-wider" id="v-name">--</div>
+                            <div class="text-sm text-cyan-500 mt-1 sys-font" id="v-plate">--</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs border-t border-cyan-800/50 pt-4">
+                            <div class="text-cyan-600">MAKER</div>
+                            <div class="text-right text-cyan-100" id="v-maker">--</div>
+                            <div class="text-cyan-600">MODEL YR</div>
+                            <div class="text-right text-cyan-100" id="v-year">--</div>
+                        </div>
+                    </div>
+
+                    <!-- Shakensho (Inspection Certificate) -->
+                    <div class="hud-panel p-5 lg:col-span-2 flex flex-col">
+                        <div class="flex justify-between items-start mb-4 border-b border-cyan-800/50 pb-2">
+                            <h2 class="sys-font text-neon-cyan text-lg"><i class="fas fa-file-invoice mr-2"></i>CERTIFICATE (車検証)</h2>
+                            <button onclick="openUpdateModal('shakensho')" class="text-xs text-cyan-400 border border-cyan-700 px-2 py-1 hover:bg-cyan-900/50">UPDATE DATA</button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-6 flex-1">
+                            <div class="flex flex-col justify-center gap-4">
+                                <div>
+                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">DOCUMENT ID (登録番号)</div>
+                                    <div class="text-lg font-mono text-cyan-200 tracking-widest bg-black/50 p-2 border border-cyan-900" id="s-id">--</div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">OWNER (所有者)</div>
+                                    <div class="text-md text-cyan-100" id="s-owner">--</div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col justify-center gap-4">
+                                <div>
+                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">ISSUE DATE (交付年月日)</div>
+                                    <div class="text-md sys-font text-cyan-100" id="s-issue">--</div>
+                                </div>
+                                <div class="bg-cyan-900/20 p-3 border border-cyan-700/50">
+                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">EXPIRY DATE (有効期間の満了する日)</div>
+                                    <div class="text-xl sys-font text-neon-cyan font-bold" id="s-expire">--</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maintenance Modules -->
+                <div>
+                    <h2 class="sys-font text-cyan-500 text-sm mb-4 tracking-widest border-l-2 border-cyan-500 pl-2">MAINTENANCE CYCLE MODULES</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        
+                        <!-- Shaken (Inspection) -->
+                        <div class="hud-panel p-4 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <i class="fas fa-clipboard-check text-9xl"></i>
+                            </div>
+                            <div class="flex justify-between items-center mb-2 z-10">
+                                <div class="sys-font text-sm text-cyan-300"><i class="fas fa-clipboard-check mr-2"></i>INSPECTION</div>
+                                <button onclick="openUpdateModal('shaken')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mb-1 z-10">車検満了日</div>
+                            <div class="text-2xl sys-font mb-2 z-10" id="m-shaken-date">--</div>
+                            <div class="mt-auto z-10">
+                                <div class="flex justify-between text-xs sys-font mb-1">
+                                    <span id="m-shaken-status-text">STATUS</span>
+                                    <span id="m-shaken-days">-- DAYS</span>
+                                </div>
+                                <div class="status-bar-container"><div id="m-shaken-bar" class="status-bar-fill bg-cyan-500" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Oil Change -->
+                        <div class="hud-panel p-4 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <i class="fas fa-oil-can text-9xl"></i>
+                            </div>
+                            <div class="flex justify-between items-center mb-2 z-10">
+                                <div class="sys-font text-sm text-cyan-300"><i class="fas fa-oil-can mr-2"></i>ENGINE OIL</div>
+                                <button onclick="openUpdateModal('oil')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mb-1 z-10">次回交換予定日</div>
+                            <div class="text-2xl sys-font mb-2 z-10" id="m-oil-date">--</div>
+                            <div class="mt-auto z-10">
+                                <div class="flex justify-between text-xs sys-font mb-1">
+                                    <span id="m-oil-status-text">STATUS</span>
+                                    <span id="m-oil-days">-- DAYS</span>
+                                </div>
+                                <div class="status-bar-container"><div id="m-oil-bar" class="status-bar-fill bg-cyan-500" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Tires -->
+                        <div class="hud-panel p-4 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <i class="fas fa-dharmachakra text-9xl"></i>
+                            </div>
+                            <div class="flex justify-between items-center mb-2 z-10">
+                                <div class="sys-font text-sm text-cyan-300"><i class="fas fa-dharmachakra mr-2"></i>TIRE CHANGE</div>
+                                <button onclick="openUpdateModal('tires')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mb-1 z-10">次回交換/ローテーション</div>
+                            <div class="text-2xl sys-font mb-2 z-10" id="m-tires-date">--</div>
+                            <div class="mt-auto z-10">
+                                <div class="flex justify-between text-xs sys-font mb-1">
+                                    <span id="m-tires-status-text">STATUS</span>
+                                    <span id="m-tires-days">-- DAYS</span>
+                                </div>
+                                <div class="status-bar-container"><div id="m-tires-bar" class="status-bar-fill bg-cyan-500" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Insurance -->
+                        <div class="hud-panel p-4 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <i class="fas fa-shield-alt text-9xl"></i>
+                            </div>
+                            <div class="flex justify-between items-center mb-2 z-10">
+                                <div class="sys-font text-sm text-cyan-300"><i class="fas fa-shield-alt mr-2"></i>INSURANCE</div>
+                                <button onclick="openUpdateModal('insurance')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mb-1 z-10">任意保険更新日</div>
+                            <div class="text-2xl sys-font mb-2 z-10" id="m-ins-date">--</div>
+                            <div class="mt-auto z-10">
+                                <div class="flex justify-between text-xs sys-font mb-1">
+                                    <span id="m-ins-status-text">STATUS</span>
+                                    <span id="m-ins-days">-- DAYS</span>
+                                </div>
+                                <div class="status-bar-container"><div id="m-ins-bar" class="status-bar-fill bg-cyan-500" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="h-full flex flex-col items-center justify-center text-cyan-800">
+                <i class="fas fa-car-crash text-6xl mb-4 opacity-50"></i>
+                <div class="sys-font tracking-widest text-lg opacity-50">NO VEHICLE SELECTED</div>
+                <div class="text-sm mt-2 opacity-50">ターゲット車両を選択、または新規登録してください。</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Universal Update Modal -->
+    <div id="update-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="hud-panel w-full max-w-md p-6">
+            <h3 class="sys-font text-neon-cyan text-lg mb-4 border-b border-cyan-800 pb-2" id="modal-title">UPDATE SYSTEM</h3>
+            
+            <form id="update-form" class="flex flex-col gap-4">
+                <input type="hidden" id="modal-target-type">
+                
+                <div id="modal-fields" class="flex flex-col gap-3">
+                    <!-- Fields injected dynamically -->
+                </div>
+
+                <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-cyan-800">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors">CANCEL</button>
+                    <button type="submit" class="px-6 py-2 text-xs sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white transition-all">EXECUTE</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hidden File Input for Image Upload -->
+    <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+    <input type="file" id="shakensho-scan" accept="image/*" class="hidden" onchange="handleShakenshoScan(event)">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Init ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        let userId = null;
+        let unsubscribeDb = null;
+        let vehicles = [];
+        let currentVehicleId = null;
+
+        // --- Clock Update ---
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', { hour12: false }) + '.' + Math.floor(now.getMilliseconds()/100);
+            requestAnimationFrame(updateTime);
+        }
+        updateTime();
+
+        // --- Auth & Data Fetching ---
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Authentication Error:", error);
+                document.getElementById('auth-status').innerText = 'AUTH FAILED';
+                document.getElementById('auth-status').className = 'text-neon-red';
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid;
+                document.getElementById('auth-status').innerText = 'SYNC ACTIVE';
+                document.getElementById('auth-status').className = 'text-neon-cyan';
+                setupDatabaseListener();
+            } else {
+                userId = null;
+                if (unsubscribeDb) unsubscribeDb();
+            }
+        });
+
+        initAuth();
+
+        function setupDatabaseListener() {
+            if (!userId) return;
+            const vehiclesRef = collection(db, 'artifacts', appId, 'users', userId, 'vehicles');
+            unsubscribeDb = onSnapshot(vehiclesRef, (snapshot) => {
+                vehicles = [];
+                snapshot.forEach(doc => {
+                    vehicles.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort by ID to keep order consistent
+                vehicles.sort((a, b) => a.id.localeCompare(b.id));
+
+                renderSidebar();
+                
+                if (vehicles.length === 0) {
+                    currentVehicleId = null;
+                    document.getElementById('dashboard-content').classList.add('hidden');
+                    document.getElementById('dashboard-content').classList.remove('flex');
+                    document.getElementById('empty-state').classList.remove('hidden');
+                } else {
+                    // Maintain current selection or select first
+                    if (!currentVehicleId || !vehicles.find(v => v.id === currentVehicleId)) {
+                        selectVehicle(vehicles[0].id);
+                    } else {
+                        selectVehicle(currentVehicleId);
+                    }
+                }
+            }, (error) => {
+                console.error("DB Sync Error:", error);
+                document.getElementById('auth-status').innerText = 'SYNC ERROR';
+                document.getElementById('auth-status').className = 'text-neon-red';
+            });
+        }
+
+        // --- Logic & Rendering ---
+        function renderSidebar() {
+            const list = document.getElementById('vehicle-list');
+            list.innerHTML = '';
+            vehicles.forEach(v => {
+                const isActive = v.id === currentVehicleId;
+                const btn = document.createElement('button');
+                btn.className = `text-left p-3 border-l-4 transition-all ${isActive ? 'bg-cyan-900/40 border-neon-cyan text-white' : 'border-transparent text-cyan-600 hover:bg-cyan-900/20 hover:border-cyan-700'}`;
+                btn.onclick = () => selectVehicle(v.id);
+                btn.innerHTML = `
+                    <div class="font-bold tracking-wide">${v.name}</div>
+                    <div class="text-[10px] sys-font mt-1 opacity-70">${v.plate}</div>
+                `;
+                list.appendChild(btn);
+            });
+        }
+
+        function selectVehicle(id) {
+            currentVehicleId = id;
+            renderSidebar();
+            const v = vehicles.find(v => v.id === id);
+            if(!v) return;
+            
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('dashboard-content').classList.remove('hidden');
+            document.getElementById('dashboard-content').classList.add('flex');
+
+            // Populate Info
+            document.getElementById('v-name').innerText = v.name;
+            document.getElementById('v-plate').innerText = v.plate;
+            document.getElementById('v-maker').innerText = v.maker;
+            document.getElementById('v-year').innerText = v.year;
+
+            const imgContainer = document.getElementById('v-image-container');
+            if (v.image) {
+                imgContainer.innerHTML = `<img src="${v.image}" class="w-full h-full object-cover" alt="${v.name}">`;
+            } else {
+                imgContainer.innerHTML = `<i class="fas fa-car-side text-6xl text-cyan-800"></i>`;
+            }
+
+            // Populate Shakensho
+            document.getElementById('s-id').innerText = v.shakensho.id;
+            document.getElementById('s-owner').innerText = v.owner;
+            document.getElementById('s-issue').innerText = v.shakensho.issue;
+            document.getElementById('s-expire').innerText = v.shakensho.expire;
+
+            // Calculate & Render Maintenance Modules
+            renderMaintenanceModule('shaken', v.maintenance.shaken, 730);
+            renderMaintenanceModule('oil', v.maintenance.oil, 180);
+            renderMaintenanceModule('tires', v.maintenance.tires, 365);
+            renderMaintenanceModule('ins', v.maintenance.insurance, 365);
+        }
+
+        function renderMaintenanceModule(type, targetDateStr, baseDaysCycle) {
+            const elDate = document.getElementById(`m-${type}-date`);
+            const elDays = document.getElementById(`m-${type}-days`);
+            const elStatus = document.getElementById(`m-${type}-status-text`);
+            const elBar = document.getElementById(`m-${type}-bar`);
+
+            elDate.innerText = targetDateStr;
+
+            const targetDate = new Date(targetDateStr);
+            const today = new Date();
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            elDays.innerText = diffDays >= 0 ? `${diffDays} DAYS LEFT` : `${Math.abs(diffDays)} DAYS OVER`;
+
+            let percentage = (diffDays / baseDaysCycle) * 100;
+            if (percentage > 100) percentage = 100;
+            if (percentage < 0) percentage = 0;
+
+            elBar.style.width = `${percentage}%`;
+
+            elDate.className = 'text-2xl sys-font mb-2 z-10';
+            elStatus.className = 'sys-font mb-1';
+            elBar.className = 'status-bar-fill';
+
+            if (diffDays < 0) {
+                elDate.classList.add('text-neon-red');
+                elStatus.classList.add('text-neon-red');
+                elStatus.innerText = 'DANGER: OVERDUE';
+                elBar.classList.add('bg-red-500', 'shadow-[0_0_10px_#f04]');
+            } else if (diffDays <= 30) {
+                elDate.classList.add('text-neon-yellow');
+                elStatus.classList.add('text-neon-yellow');
+                elStatus.innerText = 'WARNING: IMMINENT';
+                elBar.classList.add('bg-yellow-400', 'shadow-[0_0_10px_#ff0]');
+            } else {
+                elDate.classList.add('text-neon-green');
+                elStatus.classList.add('text-neon-green');
+                elStatus.innerText = 'OPTIMAL';
+                elBar.classList.add('bg-green-500', 'shadow-[0_0_10px_#0f8]');
+            }
+        }
+
+        // --- Modal & Global Functions ---
+        const modal = document.getElementById('update-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalFields = document.getElementById('modal-fields');
+        const modalTargetType = document.getElementById('modal-target-type');
+        const updateForm = document.getElementById('update-form');
+
+        window.closeModal = () => {
+            modal.classList.add('hidden');
+            modalTitle.classList.remove('text-neon-red');
+            modalTitle.classList.add('text-neon-cyan');
+        };
+
+        window.openAddVehicleModal = () => {
+            modalTitle.innerText = "INITIALIZE NEW VEHICLE";
+            modalTargetType.value = "new_vehicle";
+            modalFields.innerHTML = `
+                <div class="flex flex-col gap-2 mb-2 border-b border-cyan-800 pb-3">
+                    <button type="button" onclick="document.getElementById('shakensho-scan').click()" class="hud-panel w-full py-2 text-cyan-300 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center gap-2 cursor-pointer border-cyan-500">
+                        <i class="fas fa-camera"></i> SCAN CERTIFICATE (AUTO-FILL)
+                    </button>
+                    <div id="scan-status" class="text-center text-[10px] text-neon-yellow hidden animate-pulse">ANALYZING IMAGE DATA...</div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="col-span-2 sm:col-span-1">
+                        <div class="text-[10px] text-cyan-500 mb-1">VEHICLE NAME (通称名)</div>
+                        <input type="text" id="inp-name" required placeholder="e.g. PRIUS">
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <div class="text-[10px] text-cyan-500 mb-1">NUMBER PLATE</div>
+                        <input type="text" id="inp-plate" required placeholder="e.g. 品川 500 あ 12-34">
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <div class="text-[10px] text-cyan-500 mb-1">MAKER (車名)</div>
+                        <input type="text" id="inp-maker" placeholder="e.g. TOYOTA">
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <div class="text-[10px] text-cyan-500 mb-1">DOCUMENT ID (車台番号)</div>
+                        <input type="text" id="inp-sid" placeholder="e.g. ZVW50-1234567">
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <div class="text-[10px] text-cyan-500 mb-1">ISSUE DATE</div>
+                        <input type="date" id="inp-sissue">
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <div class="text-[10px] text-cyan-500 mb-1">EXPIRY DATE</div>
+                        <input type="date" id="inp-sexpire">
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        };
+
+        window.editCurrentVehicle = () => {
+            if(!currentVehicleId) return;
+            const v = vehicles.find(v => v.id === currentVehicleId);
+            modalTitle.innerText = "EDIT IDENTITY DATA";
+            modalTargetType.value = "edit_vehicle";
+            modalFields.innerHTML = `
+                <div class="text-xs text-cyan-500 mb-1">VEHICLE NAME</div>
+                <input type="text" id="inp-name" value="${v.name}" required>
+                <div class="text-xs text-cyan-500 mb-1 mt-2">NUMBER PLATE</div>
+                <input type="text" id="inp-plate" value="${v.plate}" required>
+                <div class="text-xs text-cyan-500 mb-1 mt-2">MAKER</div>
+                <input type="text" id="inp-maker" value="${v.maker}">
+                <div class="text-xs text-cyan-500 mb-1 mt-2">MODEL YEAR</div>
+                <input type="text" id="inp-year" value="${v.year}">
+            `;
+            modal.classList.remove('hidden');
+        };
+
+        const apiKey = "";
+
+        window.handleShakenshoScan = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusEl = document.getElementById('scan-status');
+            statusEl.classList.remove('hidden');
+            statusEl.innerText = "ANALYZING IMAGE DATA...";
+            statusEl.className = "text-center text-[10px] text-neon-yellow animate-pulse";
+
+            try {
+                const base64String = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+
+                const mimeType = base64String.split(';')[0].split(':')[1];
+                const base64Data = base64String.split(',')[1];
+                
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: "Extract vehicle information from this Japanese vehicle inspection certificate (車検証). Convert Japanese era dates (Reiwa, Heisei, etc.) to Gregorian YYYY-MM-DD. If some parts are not readable, guess or leave them empty. Return ONLY strict JSON." },
+                            { inlineData: { mimeType: mimeType, data: base64Data } }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                name: { type: "STRING", description: "Vehicle model name (通称名)" },
+                                plate: { type: "STRING", description: "Number plate (自動車登録番号または車両番号)" },
+                                maker: { type: "STRING", description: "Maker (車名)" },
+                                documentId: { type: "STRING", description: "Document ID (車台番号)" },
+                                issueDate: { type: "STRING", description: "Issue date (交付年月日) in YYYY-MM-DD" },
+                                expireDate: { type: "STRING", description: "Expiry date (有効期間の満了する日) in YYYY-MM-DD" }
+                            }
+                        }
+                    }
+                };
+
+                let resultJson = null;
+                let retries = 5;
+                let delay = 1000;
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const result = await response.json();
+                        const text = result.candidates[0].content.parts[0].text;
+                        resultJson = JSON.parse(text);
+                        break;
+                    } catch (error) {
+                        if (i === retries - 1) throw error;
+                        await new Promise(res => setTimeout(res, delay));
+                        delay *= 2;
+                    }
+                }
+
+                if (resultJson) {
+                    if (resultJson.name) document.getElementById('inp-name').value = resultJson.name;
+                    if (resultJson.plate) document.getElementById('inp-plate').value = resultJson.plate;
+                    if (resultJson.maker) document.getElementById('inp-maker').value = resultJson.maker;
+                    if (resultJson.documentId) document.getElementById('inp-sid').value = resultJson.documentId;
+                    if (resultJson.issueDate) document.getElementById('inp-sissue').value = resultJson.issueDate;
+                    if (resultJson.expireDate) document.getElementById('inp-sexpire').value = resultJson.expireDate;
+                    
+                    statusEl.innerText = "DATA EXTRACTED SUCCESSFULLY";
+                    statusEl.className = "text-center text-[10px] text-neon-green";
+                }
+            } catch (error) {
+                console.error("Scan Error:", error);
+                statusEl.innerText = "SCAN FAILED. PLEASE ENTER MANUALLY.";
+                statusEl.className = "text-center text-[10px] text-neon-red";
+            }
+            event.target.value = '';
+        };
+
+        window.confirmDeleteVehicle = () => {
+            if(!currentVehicleId) return;
+            const v = vehicles.find(v => v.id === currentVehicleId);
+            modalTitle.innerText = "WARNING: DELETE TARGET";
+            modalTitle.classList.replace('text-neon-cyan', 'text-neon-red');
+            modalTargetType.value = "delete_vehicle";
+            modalFields.innerHTML = `
+                <div class="text-neon-red text-center py-4 sys-font">
+                    <i class="fas fa-exclamation-triangle text-4xl mb-3 animate-pulse"></i><br>
+                    TARGET <span class="text-white">[${v.name}]</span> WILL BE PERMANENTLY DELETED.<br>
+                    PROCEED WITH PURGE?
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        };
+
+        window.handleImageUpload = (event) => {
+            const file = event.target.files[0];
+            if (!file || !currentVehicleId || !userId) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = async function() {
+                    // Resize to avoid Firebase 1MB doc limit
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600;
+                    let scaleSize = 1;
+                    if (img.width > MAX_WIDTH) {
+                        scaleSize = MAX_WIDTH / img.width;
+                    }
+                    canvas.width = img.width * scaleSize;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+                    try {
+                        const vRef = doc(db, 'artifacts', appId, 'users', userId, 'vehicles', currentVehicleId);
+                        await setDoc(vRef, { image: dataUrl }, { merge: true });
+                    } catch (error) {
+                        console.error("Image Upload Error", error);
+                    }
+                }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        };
+
+        updateForm.onsubmit = async (e) => {
+            e.preventDefault();
+            if (!userId) return;
+            const type = modalTargetType.value;
+            
+            try {
+                if (type === 'new_vehicle') {
+                    const newId = 'V-' + Date.now();
+                    const expireVal = document.getElementById('inp-sexpire')?.value || '2026-01-01';
+                    const newVehicleData = {
+                        name: document.getElementById('inp-name').value || 'UNKNOWN',
+                        plate: document.getElementById('inp-plate').value || 'UNKNOWN',
+                        maker: document.getElementById('inp-maker')?.value || 'UNKNOWN', 
+                        year: '----', owner: 'SYS-USER',
+                        image: null,
+                        shakensho: { 
+                            id: document.getElementById('inp-sid')?.value || '----------', 
+                            issue: document.getElementById('inp-sissue')?.value || '2024-01-01', 
+                            expire: expireVal 
+                        },
+                        maintenance: { shaken: expireVal, oil: '2024-06-01', tires: '2024-12-01', insurance: '2025-01-01' }
+                    };
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'vehicles', newId), newVehicleData);
+                    currentVehicleId = newId;
+                } else if (type === 'delete_vehicle') {
+                    const idToDelete = currentVehicleId;
+                    currentVehicleId = null;
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'vehicles', idToDelete));
+                } else {
+                    const v = vehicles.find(v => v.id === currentVehicleId);
+                    if (!v) return;
+                    
+                    const updatedData = JSON.parse(JSON.stringify(v));
+                    delete updatedData.id; // Exclude ID from document body
+                    
+                    if (type === 'edit_vehicle') {
+                        updatedData.name = document.getElementById('inp-name').value;
+                        updatedData.plate = document.getElementById('inp-plate').value;
+                        updatedData.maker = document.getElementById('inp-maker').value;
+                        updatedData.year = document.getElementById('inp-year').value;
+                    } else if (type === 'shakensho') {
+                        updatedData.shakensho.id = document.getElementById('inp-sid').value;
+                        updatedData.shakensho.issue = document.getElementById('inp-sissue').value;
+                        updatedData.shakensho.expire = document.getElementById('inp-sexpire').value;
+                        updatedData.maintenance.shaken = updatedData.shakensho.expire;
+                    } else {
+                        updatedData.maintenance[type] = document.getElementById('inp-date').value;
+                    }
+                    
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'vehicles', currentVehicleId), updatedData);
+                }
+            } catch (error) {
+                console.error("Database Update Error:", error);
+            }
+            
+            window.closeModal();
+        };
+    </script>
+</body>
+</html>
