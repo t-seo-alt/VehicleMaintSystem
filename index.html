@@ -938,7 +938,6 @@ service cloud.firestore {
 
             // APIキー取得時に前後の空白を削除
             const savedApiKey = (localStorage.getItem('gemini_api_key') || "").trim();
-            const modelName = savedApiKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025";
 
             // Calculate current stats to feed the AI prompt
             const today = new Date();
@@ -970,34 +969,43 @@ service cloud.firestore {
             `;
 
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${savedApiKey}`;
+                // 自動フォールバック用モデルリスト
+                const modelsToTry = savedApiKey 
+                    ? ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash", "gemini-1.0-pro-latest"] 
+                    : ["gemini-2.5-flash-preview-09-2025"];
+
                 const payload = {
                     contents: [{ role: "user", parts: [{ text: prompt }] }],
                     generationConfig: { temperature: 0.7 }
                 };
 
-                // Added simple retry logic
                 let resultJson = null;
                 let lastErrorMsg = "";
-                for (let i = 0; i < 3; i++) {
+                
+                for (const model of modelsToTry) {
                     try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${savedApiKey}`;
                         const response = await fetch(url, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
+                        
                         if (!response.ok) {
                             const errData = await response.json().catch(() => ({}));
-                            throw new Error(`HTTP ${response.status}: ${errData?.error?.message || 'Unknown API Error'}`);
+                            throw new Error(`HTTP ${response.status} (${model}): ${errData?.error?.message || 'Unknown API Error'}`);
                         }
+                        
                         resultJson = await response.json();
-                        break;
+                        break; // 成功した場合はループを抜ける
                     } catch (err) {
                         lastErrorMsg = err.message;
-                        if(i === 2) throw err;
-                        await new Promise(res => setTimeout(res, 1000 * (i+1)));
+                        console.warn(`[AI SYS-CHECK] ${model} failed, trying next...`, err.message);
+                        await new Promise(res => setTimeout(res, 1000));
                     }
                 }
+
+                if (!resultJson) throw new Error(lastErrorMsg);
 
                 const text = resultJson.candidates[0].content.parts[0].text.replace(/```html|```/g, ''); // sanitize if AI returns markdown
                 
@@ -1030,9 +1038,6 @@ service cloud.firestore {
             
             // APIキー取得時に前後の空白を削除
             const savedApiKey = (localStorage.getItem('gemini_api_key') || "").trim();
-            
-            // カスタムAPIキーがある場合（GitHub Pages等）は一般公開モデルを、ない場合はプレビュー専用モデルを使用
-            const modelName = savedApiKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025";
 
             statusEl.innerText = "ANALYZING IMAGE DATA...";
             statusEl.className = "text-center text-[10px] text-neon-yellow animate-pulse";
@@ -1048,7 +1053,11 @@ service cloud.firestore {
                 const mimeType = base64String.split(';')[0].split(':')[1];
                 const base64Data = base64String.split(',')[1];
                 
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${savedApiKey}`;
+                // 画像スキャン対応モデルの自動フォールバックリスト
+                const modelsToTry = savedApiKey 
+                    ? ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"] 
+                    : ["gemini-2.5-flash-preview-09-2025"];
+
                 const payload = {
                     contents: [{
                         role: "user",
@@ -1074,43 +1083,44 @@ service cloud.firestore {
                 };
 
                 let resultJson = null;
-                let retries = 5;
-                let delay = 1000;
                 let lastError = "";
-                for (let i = 0; i < retries; i++) {
+
+                for (const model of modelsToTry) {
                     try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${savedApiKey}`;
                         const response = await fetch(url, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
+                        
                         if (!response.ok) {
                             const errData = await response.json().catch(() => ({}));
-                            throw new Error(`HTTP ${response.status}: ${errData?.error?.message || 'Unknown API Error'}`);
+                            throw new Error(`HTTP ${response.status} (${model}): ${errData?.error?.message || 'Unknown API Error'}`);
                         }
+                        
                         const result = await response.json();
                         const text = result.candidates[0].content.parts[0].text;
                         resultJson = JSON.parse(text);
-                        break;
+                        break; // 成功した場合はループを抜ける
                     } catch (error) {
                         lastError = error.message;
-                        if (i === retries - 1) throw error;
-                        await new Promise(res => setTimeout(res, delay));
-                        delay *= 2;
+                        console.warn(`[SCAN] ${model} failed, trying next...`, error.message);
+                        await new Promise(res => setTimeout(res, 1000));
                     }
                 }
 
-                if (resultJson) {
-                    if (resultJson.name) document.getElementById('inp-name').value = resultJson.name;
-                    if (resultJson.plate) document.getElementById('inp-plate').value = resultJson.plate;
-                    if (resultJson.maker) document.getElementById('inp-maker').value = resultJson.maker;
-                    if (resultJson.documentId) document.getElementById('inp-sid').value = resultJson.documentId;
-                    if (resultJson.issueDate) document.getElementById('inp-sissue').value = resultJson.issueDate;
-                    if (resultJson.expireDate) document.getElementById('inp-sexpire').value = resultJson.expireDate;
-                    
-                    statusEl.innerText = "DATA EXTRACTED SUCCESSFULLY";
-                    statusEl.className = "text-center text-[10px] text-neon-green";
-                }
+                if (!resultJson) throw new Error(lastError);
+
+                if (resultJson.name) document.getElementById('inp-name').value = resultJson.name;
+                if (resultJson.plate) document.getElementById('inp-plate').value = resultJson.plate;
+                if (resultJson.maker) document.getElementById('inp-maker').value = resultJson.maker;
+                if (resultJson.documentId) document.getElementById('inp-sid').value = resultJson.documentId;
+                if (resultJson.issueDate) document.getElementById('inp-sissue').value = resultJson.issueDate;
+                if (resultJson.expireDate) document.getElementById('inp-sexpire').value = resultJson.expireDate;
+                
+                statusEl.innerText = "DATA EXTRACTED SUCCESSFULLY";
+                statusEl.className = "text-center text-[10px] text-neon-green";
             } catch (error) {
                 console.error("Scan Error Details:", error);
                 // APIキーの有無によってエラーメッセージを切り替え、詳細なエラー内容も表示する
