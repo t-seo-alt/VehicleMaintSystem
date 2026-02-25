@@ -104,9 +104,9 @@
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); border-left: 1px solid rgba(0,255,255,0.2); }
-        ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.5); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.4); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,255,0.8); }
 
         /* Glitch animation for title */
@@ -151,104 +151,121 @@
     <div class="scanlines"></div>
 
     <!-- Header -->
-    <header class="flex justify-between items-center p-4 border-b border-cyan-800 bg-black/60 z-10 relative shadow-[0_4px_15px_rgba(0,255,255,0.1)]">
-        <div class="flex items-center gap-4">
-            <i class="fas fa-satellite-dish text-neon-cyan animate-pulse text-2xl"></i>
-            <div>
-                <h1 class="sys-font text-2xl font-bold text-neon-cyan tracking-widest glitch-hover">VEHICLE SYS-COM</h1>
-                <div class="text-[10px] text-cyan-600 tracking-[0.2em]">PERSONAL MAINTENANCE DATABASE V2.0</div>
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 md:p-4 border-b border-cyan-800 bg-black/60 z-10 relative shadow-[0_4px_15px_rgba(0,255,255,0.1)] gap-3 sm:gap-0 shrink-0">
+        <div class="flex items-center justify-between w-full sm:w-auto">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-satellite-dish text-neon-cyan animate-pulse text-xl md:text-2xl"></i>
+                <div>
+                    <h1 class="sys-font text-lg md:text-2xl font-bold text-neon-cyan tracking-widest glitch-hover leading-tight">VEHICLE SYS-COM</h1>
+                    <div class="text-[8px] md:text-[10px] text-cyan-600 tracking-[0.2em] mt-0.5">PERSONAL MAINTENANCE DB V2.0</div>
+                </div>
+            </div>
+            <!-- Mobile Auth/Config/Add buttons -->
+            <div class="flex sm:hidden gap-2">
+                <button onclick="openAuthModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font flex items-center justify-center cursor-pointer relative z-20" title="USER AUTHENTICATION">
+                    <i class="fas fa-user"></i>
+                </button>
+                <button onclick="openConfigModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font flex items-center justify-center cursor-pointer relative z-20" title="SYSTEM CONFIG">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button onclick="openAddVehicleModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font flex items-center justify-center cursor-pointer relative z-20" title="ADD VEHICLE">
+                    <i class="fas fa-plus"></i>
+                </button>
             </div>
         </div>
-        <div class="flex items-center gap-6">
-            <div class="text-right">
-                <div class="sys-font text-cyan-400" id="current-time">00:00:00</div>
-                <div class="text-[10px] text-cyan-700">SYSTEM STATUS: <span id="auth-status" class="text-neon-yellow animate-pulse">CONNECTING...</span></div>
+        <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+            <div class="text-left sm:text-right">
+                <div class="sys-font text-cyan-400 text-xs md:text-sm" id="current-time">00:00:00</div>
+                <div class="text-[8px] md:text-[10px] text-cyan-700">SYS STATUS: <span id="auth-status" class="text-neon-yellow animate-pulse">CONNECTING...</span></div>
             </div>
-            <div class="flex gap-2">
+            <!-- Desktop Buttons -->
+            <div class="hidden sm:flex gap-2">
                 <button onclick="openAuthModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center cursor-pointer relative z-20" title="USER AUTHENTICATION">
-                    <i class="fas fa-user"></i> <span id="user-display-name" class="ml-2 hidden sm:inline">GUEST</span>
+                    <i class="fas fa-user"></i> <span id="user-display-name" class="ml-2 hidden lg:inline">GUEST</span>
                 </button>
                 <button onclick="openConfigModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center cursor-pointer relative z-20" title="SYSTEM CONFIG">
                     <i class="fas fa-cog"></i>
                 </button>
                 <button onclick="openAddVehicleModal()" class="hud-panel px-4 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center gap-2 cursor-pointer relative z-20">
-                    <i class="fas fa-plus"></i> ADD VEHICLE
+                    <i class="fas fa-plus"></i> <span class="hidden md:inline">ADD VEHICLE</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden relative z-10">
+    <!-- Content Area: Column on Mobile, Row on Desktop -->
+    <div class="flex flex-col md:flex-row flex-1 overflow-hidden relative z-10">
+        
         <!-- Sidebar (Vehicle List) -->
-        <aside class="w-64 border-r border-cyan-800 bg-black/40 flex flex-col p-4 gap-4 overflow-y-auto">
-            <div class="text-xs text-cyan-600 sys-font border-b border-cyan-800/50 pb-2 mb-2">TARGET SELECT</div>
-            <div id="vehicle-list" class="flex flex-col gap-3">
+        <aside class="w-full md:w-64 border-b md:border-b-0 md:border-r border-cyan-800 bg-black/40 flex flex-col p-3 md:p-4 gap-2 md:gap-4 shrink-0 overflow-hidden">
+            <div class="text-[10px] md:text-xs text-cyan-600 sys-font border-b border-cyan-800/50 pb-1 md:pb-2 flex-shrink-0">TARGET SELECT</div>
+            <div id="vehicle-list" class="flex flex-row md:flex-col gap-2 md:gap-3 overflow-x-auto md:overflow-y-auto pb-2 md:pb-0 flex-1">
                 <!-- Vehicle items injected here -->
             </div>
         </aside>
 
         <!-- Main Dashboard -->
-        <main class="flex-1 p-6 overflow-y-auto">
-            <div id="dashboard-content" class="max-w-6xl mx-auto hidden flex-col gap-6">
+        <main class="flex-1 p-3 md:p-6 overflow-y-auto w-full">
+            <div id="dashboard-content" class="max-w-6xl mx-auto hidden flex-col gap-4 md:gap-6 pb-20 md:pb-6">
                 
                 <!-- Top Section: Vehicle Info & Shakensho -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
                     
                     <!-- Vehicle Identity -->
-                    <div class="hud-panel p-5 lg:col-span-1">
+                    <div class="hud-panel p-4 md:p-5 xl:col-span-1">
                         <div class="flex justify-between items-start mb-4">
-                            <h2 class="sys-font text-neon-cyan text-lg"><i class="fas fa-car mr-2"></i>IDENTITY</h2>
+                            <h2 class="sys-font text-neon-cyan text-base md:text-lg"><i class="fas fa-car mr-2"></i>IDENTITY</h2>
                             <div class="flex gap-4">
                                 <button onclick="editCurrentVehicle()" class="text-cyan-700 hover:text-cyan-300 transition-colors" title="EDIT DATA"><i class="fas fa-edit"></i></button>
                                 <button onclick="confirmDeleteVehicle()" class="text-red-900 hover:text-neon-red transition-colors" title="DELETE TARGET"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         </div>
                         <div class="flex flex-col items-center mb-4">
-                            <div class="w-32 h-32 rounded-full border-2 border-cyan-600 p-1 mb-3 relative overflow-hidden group cursor-pointer" onclick="document.getElementById('image-upload').click()" title="UPLOAD IMAGE">
+                            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-cyan-600 p-1 mb-3 relative overflow-hidden group cursor-pointer shrink-0" onclick="document.getElementById('image-upload').click()" title="UPLOAD IMAGE">
                                 <div class="absolute inset-0 bg-cyan-900/30 group-hover:bg-cyan-500/30 transition-colors z-10 flex items-center justify-center">
-                                    <i class="fas fa-camera text-white opacity-0 group-hover:opacity-100 transition-opacity text-2xl drop-shadow-md"></i>
+                                    <i class="fas fa-camera text-white opacity-0 group-hover:opacity-100 transition-opacity text-xl md:text-2xl drop-shadow-md"></i>
                                 </div>
                                 <div id="v-image-container" class="w-full h-full bg-black rounded-full flex items-center justify-center overflow-hidden">
-                                     <i class="fas fa-car-side text-6xl text-cyan-800"></i>
+                                     <i class="fas fa-car-side text-4xl md:text-6xl text-cyan-800"></i>
                                 </div>
                             </div>
-                            <div class="text-2xl font-bold text-white tracking-wider" id="v-name">--</div>
-                            <div class="text-sm text-cyan-500 mt-1 sys-font" id="v-plate">--</div>
+                            <div class="text-xl md:text-2xl font-bold text-white tracking-wider text-center" id="v-name">--</div>
+                            <div class="text-xs md:text-sm text-cyan-500 mt-1 sys-font text-center break-all" id="v-plate">--</div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-xs border-t border-cyan-800/50 pt-4">
+                        <div class="grid grid-cols-2 gap-2 text-[10px] md:text-xs border-t border-cyan-800/50 pt-3 md:pt-4">
                             <div class="text-cyan-600">MAKER</div>
-                            <div class="text-right text-cyan-100" id="v-maker">--</div>
+                            <div class="text-right text-cyan-100 truncate" id="v-maker">--</div>
                             <div class="text-cyan-600">MODEL YR</div>
                             <div class="text-right text-cyan-100" id="v-year">--</div>
                         </div>
                     </div>
 
                     <!-- Shakensho (Inspection Certificate) -->
-                    <div class="hud-panel p-5 lg:col-span-2 flex flex-col">
-                        <div class="flex justify-between items-start mb-4 border-b border-cyan-800/50 pb-2">
-                            <h2 class="sys-font text-neon-cyan text-lg"><i class="fas fa-file-invoice mr-2"></i>CERTIFICATE (車検証)</h2>
-                            <button onclick="openUpdateModal('shakensho')" class="text-xs text-cyan-400 border border-cyan-700 px-2 py-1 hover:bg-cyan-900/50">UPDATE DATA</button>
+                    <div class="hud-panel p-4 md:p-5 xl:col-span-2 flex flex-col">
+                        <div class="flex justify-between items-start mb-3 md:mb-4 border-b border-cyan-800/50 pb-2">
+                            <h2 class="sys-font text-neon-cyan text-base md:text-lg"><i class="fas fa-file-invoice mr-2"></i>CERTIFICATE (車検証)</h2>
+                            <button onclick="openUpdateModal('shakensho')" class="text-[10px] md:text-xs text-cyan-400 border border-cyan-700 px-2 py-1 hover:bg-cyan-900/50">UPDATE DATA</button>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-6 flex-1">
-                            <div class="flex flex-col justify-center gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                            <div class="flex flex-col justify-center gap-3 md:gap-4">
                                 <div>
                                     <div class="text-[10px] text-cyan-600 sys-font mb-1">DOCUMENT ID (登録番号)</div>
-                                    <div class="text-lg font-mono text-cyan-200 tracking-widest bg-black/50 p-2 border border-cyan-900" id="s-id">--</div>
+                                    <div class="text-base md:text-lg font-mono text-cyan-200 tracking-widest bg-black/50 p-2 border border-cyan-900 break-all" id="s-id">--</div>
                                 </div>
                                 <div>
                                     <div class="text-[10px] text-cyan-600 sys-font mb-1">OWNER (所有者)</div>
-                                    <div class="text-md text-cyan-100" id="s-owner">--</div>
+                                    <div class="text-sm md:text-md text-cyan-100 break-all" id="s-owner">--</div>
                                 </div>
                             </div>
-                            <div class="flex flex-col justify-center gap-4">
+                            <div class="flex flex-col justify-center gap-3 md:gap-4">
                                 <div>
                                     <div class="text-[10px] text-cyan-600 sys-font mb-1">ISSUE DATE (交付年月日)</div>
-                                    <div class="text-md sys-font text-cyan-100" id="s-issue">--</div>
+                                    <div class="text-sm md:text-md sys-font text-cyan-100" id="s-issue">--</div>
                                 </div>
                                 <div class="bg-cyan-900/20 p-3 border border-cyan-700/50">
-                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">EXPIRY DATE (有効期間の満了する日)</div>
-                                    <div class="text-xl sys-font text-neon-cyan font-bold" id="s-expire">--</div>
+                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">EXPIRY DATE (有効期間の満了日)</div>
+                                    <div class="text-lg md:text-xl sys-font text-neon-cyan font-bold" id="s-expire">--</div>
                                 </div>
                             </div>
                         </div>
@@ -257,27 +274,27 @@
 
                 <!-- Maintenance Modules -->
                 <div>
-                    <div class="flex justify-between items-center mb-4 border-l-2 border-cyan-500 pl-2">
-                        <h2 class="sys-font text-cyan-500 text-sm tracking-widest">MAINTENANCE CYCLE MODULES</h2>
-                        <button onclick="openAiDiagnostics()" class="hud-panel px-4 py-2 text-neon-yellow hover:bg-yellow-900/30 transition-colors sys-font text-xs flex items-center gap-2 border-yellow-500/50 cursor-pointer shadow-[0_0_10px_rgba(255,255,0,0.2)]">
-                            <i class="fas fa-brain animate-pulse"></i> AI SYS-CHECK ✨
+                    <div class="flex justify-between items-end md:items-center mb-3 md:mb-4 border-l-2 border-cyan-500 pl-2">
+                        <h2 class="sys-font text-cyan-500 text-xs md:text-sm tracking-widest leading-none">MAINTENANCE MODULES</h2>
+                        <button onclick="openAiDiagnostics()" class="hud-panel px-3 md:px-4 py-1.5 md:py-2 text-neon-yellow hover:bg-yellow-900/30 transition-colors sys-font text-[10px] md:text-xs flex items-center gap-2 border-yellow-500/50 cursor-pointer shadow-[0_0_10px_rgba(255,255,0,0.2)] shrink-0">
+                            <i class="fas fa-brain animate-pulse"></i> <span class="hidden sm:inline">AI SYS-CHECK ✨</span><span class="sm:hidden">AI CHECK</span>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                         
                         <!-- Shaken (Inspection) -->
-                        <div class="hud-panel p-4 flex flex-col relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <i class="fas fa-clipboard-check text-9xl"></i>
+                        <div class="hud-panel p-3 md:p-4 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+                                <i class="fas fa-clipboard-check text-7xl md:text-9xl"></i>
                             </div>
                             <div class="flex justify-between items-center mb-2 z-10">
-                                <div class="sys-font text-sm text-cyan-300"><i class="fas fa-clipboard-check mr-2"></i>INSPECTION</div>
+                                <div class="sys-font text-xs md:text-sm text-cyan-300"><i class="fas fa-clipboard-check mr-2"></i>INSPECTION</div>
                                 <button onclick="openUpdateModal('shaken')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
                             <div class="text-[10px] text-gray-400 mb-1 z-10">車検満了日</div>
-                            <div class="text-2xl sys-font mb-2 z-10" id="m-shaken-date">--</div>
+                            <div class="text-xl md:text-2xl sys-font mb-2 z-10" id="m-shaken-date">--</div>
                             <div class="mt-auto z-10">
-                                <div class="flex justify-between text-xs sys-font mb-1">
+                                <div class="flex justify-between text-[10px] md:text-xs sys-font mb-1">
                                     <span id="m-shaken-status-text">STATUS</span>
                                     <span id="m-shaken-days">-- DAYS</span>
                                 </div>
@@ -286,19 +303,19 @@
                         </div>
 
                         <!-- Oil Change -->
-                        <div class="hud-panel p-4 flex flex-col relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <i class="fas fa-oil-can text-9xl"></i>
+                        <div class="hud-panel p-3 md:p-4 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+                                <i class="fas fa-oil-can text-7xl md:text-9xl"></i>
                             </div>
                             <div class="flex justify-between items-center mb-2 z-10">
-                                <div class="sys-font text-sm text-cyan-300"><i class="fas fa-oil-can mr-2"></i>ENGINE OIL</div>
+                                <div class="sys-font text-xs md:text-sm text-cyan-300"><i class="fas fa-oil-can mr-2"></i>ENGINE OIL</div>
                                 <button onclick="openUpdateModal('oil')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
-                            <div class="text-[10px] text-cyan-600 mb-1 z-10 sys-font" id="m-oil-last">LAST: -- ( -- km )</div>
+                            <div class="text-[8px] md:text-[10px] text-cyan-600 mb-1 z-10 sys-font truncate" id="m-oil-last">LAST: -- ( -- km )</div>
                             <div class="text-[10px] text-gray-400 mb-1 z-10">次回交換予定日</div>
-                            <div class="text-2xl sys-font mb-2 z-10" id="m-oil-date">--</div>
+                            <div class="text-xl md:text-2xl sys-font mb-2 z-10" id="m-oil-date">--</div>
                             <div class="mt-auto z-10">
-                                <div class="flex justify-between text-xs sys-font mb-1">
+                                <div class="flex justify-between text-[10px] md:text-xs sys-font mb-1">
                                     <span id="m-oil-status-text">STATUS</span>
                                     <span id="m-oil-days">-- DAYS</span>
                                 </div>
@@ -307,18 +324,18 @@
                         </div>
 
                         <!-- Tires -->
-                        <div class="hud-panel p-4 flex flex-col relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <i class="fas fa-dharmachakra text-9xl"></i>
+                        <div class="hud-panel p-3 md:p-4 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+                                <i class="fas fa-dharmachakra text-7xl md:text-9xl"></i>
                             </div>
                             <div class="flex justify-between items-center mb-2 z-10">
-                                <div class="sys-font text-sm text-cyan-300"><i class="fas fa-dharmachakra mr-2"></i>TIRE CHANGE</div>
+                                <div class="sys-font text-xs md:text-sm text-cyan-300"><i class="fas fa-dharmachakra mr-2"></i>TIRE CHANGE</div>
                                 <button onclick="openUpdateModal('tires')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
-                            <div class="text-[10px] text-gray-400 mb-1 z-10">次回交換/ローテーション</div>
-                            <div class="text-2xl sys-font mb-2 z-10" id="m-tires-date">--</div>
+                            <div class="text-[10px] text-gray-400 mb-1 z-10">次回交換/ローテ</div>
+                            <div class="text-xl md:text-2xl sys-font mb-2 z-10" id="m-tires-date">--</div>
                             <div class="mt-auto z-10">
-                                <div class="flex justify-between text-xs sys-font mb-1">
+                                <div class="flex justify-between text-[10px] md:text-xs sys-font mb-1">
                                     <span id="m-tires-status-text">STATUS</span>
                                     <span id="m-tires-days">-- DAYS</span>
                                 </div>
@@ -327,18 +344,18 @@
                         </div>
 
                         <!-- Insurance -->
-                        <div class="hud-panel p-4 flex flex-col relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <i class="fas fa-shield-alt text-9xl"></i>
+                        <div class="hud-panel p-3 md:p-4 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+                                <i class="fas fa-shield-alt text-7xl md:text-9xl"></i>
                             </div>
                             <div class="flex justify-between items-center mb-2 z-10">
-                                <div class="sys-font text-sm text-cyan-300"><i class="fas fa-shield-alt mr-2"></i>INSURANCE</div>
+                                <div class="sys-font text-xs md:text-sm text-cyan-300"><i class="fas fa-shield-alt mr-2"></i>INSURANCE</div>
                                 <button onclick="openUpdateModal('insurance')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
                             <div class="text-[10px] text-gray-400 mb-1 z-10">任意保険更新日</div>
-                            <div class="text-2xl sys-font mb-2 z-10" id="m-ins-date">--</div>
+                            <div class="text-xl md:text-2xl sys-font mb-2 z-10" id="m-ins-date">--</div>
                             <div class="mt-auto z-10">
-                                <div class="flex justify-between text-xs sys-font mb-1">
+                                <div class="flex justify-between text-[10px] md:text-xs sys-font mb-1">
                                     <span id="m-ins-status-text">STATUS</span>
                                     <span id="m-ins-days">-- DAYS</span>
                                 </div>
@@ -351,29 +368,29 @@
             </div>
             
             <!-- Empty State -->
-            <div id="empty-state" class="h-full flex flex-col items-center justify-center text-cyan-800">
-                <i class="fas fa-car-crash text-6xl mb-4 opacity-50"></i>
-                <div class="sys-font tracking-widest text-lg opacity-50">NO VEHICLE SELECTED</div>
-                <div class="text-sm mt-2 opacity-50">ターゲット車両を選択、または新規登録してください。</div>
+            <div id="empty-state" class="h-full flex flex-col items-center justify-center text-cyan-800 p-4 text-center">
+                <i class="fas fa-car-crash text-4xl md:text-6xl mb-4 opacity-50"></i>
+                <div class="sys-font tracking-widest text-base md:text-lg opacity-50">NO VEHICLE SELECTED</div>
+                <div class="text-xs md:text-sm mt-2 opacity-50">ターゲット車両を選択、または新規登録してください。</div>
             </div>
         </main>
     </div>
 
     <!-- Universal Update Modal -->
     <div id="update-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
-        <div class="hud-panel w-full max-w-md p-6">
-            <h3 class="sys-font text-neon-cyan text-lg mb-4 border-b border-cyan-800 pb-2" id="modal-title">UPDATE SYSTEM</h3>
+        <div class="hud-panel w-full max-w-md p-5 md:p-6 max-h-[90vh] overflow-y-auto">
+            <h3 class="sys-font text-neon-cyan text-base md:text-lg mb-4 border-b border-cyan-800 pb-2" id="modal-title">UPDATE SYSTEM</h3>
             
-            <form id="update-form" class="flex flex-col gap-4">
+            <form id="update-form" class="flex flex-col gap-3 md:gap-4">
                 <input type="hidden" id="modal-target-type">
                 
-                <div id="modal-fields" class="flex flex-col gap-3">
+                <div id="modal-fields" class="flex flex-col gap-2 md:gap-3">
                     <!-- Fields injected dynamically -->
                 </div>
 
                 <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-cyan-800">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors">CANCEL</button>
-                    <button type="submit" class="px-6 py-2 text-xs sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white transition-all">EXECUTE</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[10px] md:text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors">CANCEL</button>
+                    <button type="submit" class="px-6 py-2 text-[10px] md:text-xs sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white transition-all">EXECUTE</button>
                 </div>
             </form>
         </div>
@@ -381,13 +398,13 @@
 
     <!-- AI Diagnostics Terminal Modal -->
     <div id="ai-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
-        <div class="hud-panel w-full max-w-2xl p-6 border-neon-yellow shadow-[0_0_20px_rgba(255,255,0,0.15)] flex flex-col max-h-[80vh]">
-            <div class="flex justify-between items-center mb-4 border-b border-yellow-800 pb-2">
-                <h3 class="sys-font text-neon-yellow text-lg"><i class="fas fa-microchip mr-2 animate-pulse"></i>AI DIAGNOSTICS CORE ✨</h3>
-                <button onclick="closeAiModal()" class="text-yellow-700 hover:text-neon-yellow transition-colors"><i class="fas fa-times text-xl"></i></button>
+        <div class="hud-panel w-full max-w-2xl p-4 md:p-6 border-neon-yellow shadow-[0_0_20px_rgba(255,255,0,0.15)] flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-3 md:mb-4 border-b border-yellow-800 pb-2">
+                <h3 class="sys-font text-neon-yellow text-sm md:text-lg"><i class="fas fa-microchip mr-2 animate-pulse"></i>AI DIAGNOSTICS CORE ✨</h3>
+                <button onclick="closeAiModal()" class="text-yellow-700 hover:text-neon-yellow transition-colors"><i class="fas fa-times text-lg md:text-xl"></i></button>
             </div>
-            <div class="flex-1 overflow-y-auto p-4 bg-black/60 border border-yellow-900/50 rounded">
-                <div id="ai-content" class="text-sm leading-relaxed font-mono">
+            <div class="flex-1 overflow-y-auto p-3 md:p-4 bg-black/60 border border-yellow-900/50 rounded">
+                <div id="ai-content" class="text-xs md:text-sm leading-relaxed font-mono">
                     <!-- AI response injected here -->
                 </div>
             </div>
@@ -396,31 +413,31 @@
 
     <!-- Auth Modal -->
     <div id="auth-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
-        <div class="hud-panel w-full max-w-sm p-6">
-            <h3 class="sys-font text-neon-cyan text-lg mb-4 border-b border-cyan-800 pb-2">SYSTEM AUTHENTICATION</h3>
-            <form id="auth-form" class="flex flex-col gap-4">
+        <div class="hud-panel w-full max-w-sm p-5 md:p-6">
+            <h3 class="sys-font text-neon-cyan text-base md:text-lg mb-4 border-b border-cyan-800 pb-2">SYSTEM AUTHENTICATION</h3>
+            <form id="auth-form" class="flex flex-col gap-3 md:gap-4">
                 <div>
-                    <div class="text-xs text-cyan-500 mb-1">EMAIL</div>
+                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">EMAIL</div>
                     <input type="email" id="auth-email" required placeholder="user@sys-com.net">
                 </div>
                 <div>
-                    <div class="text-xs text-cyan-500 mb-1">PASSWORD</div>
+                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">PASSWORD</div>
                     <input type="password" id="auth-pass" required placeholder="••••••••" minlength="6">
                 </div>
                 <div id="auth-error" class="text-neon-red text-[10px] hidden break-words"></div>
-                <div class="flex justify-between gap-3 mt-2 pt-4 border-t border-cyan-800">
-                    <button type="button" onclick="closeAuthModal()" class="px-3 py-2 text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors">CANCEL</button>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="handleAuth('register')" class="px-4 py-2 text-xs sys-font text-cyan-400 border border-cyan-700 hover:bg-cyan-900/50 transition-all">REGISTER</button>
-                        <button type="button" onclick="handleAuth('login')" class="px-4 py-2 text-xs sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white transition-all">LOGIN</button>
+                <div class="flex flex-col sm:flex-row justify-between gap-3 mt-2 pt-4 border-t border-cyan-800">
+                    <button type="button" onclick="closeAuthModal()" class="px-3 py-2 text-[10px] md:text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors w-full sm:w-auto order-last sm:order-first">CANCEL</button>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="button" onclick="handleAuth('register')" class="flex-1 sm:flex-none px-3 py-2 text-[10px] md:text-xs sys-font text-cyan-400 border border-cyan-700 hover:bg-cyan-900/50 transition-all">REGISTER</button>
+                        <button type="button" onclick="handleAuth('login')" class="flex-1 sm:flex-none px-4 py-2 text-[10px] md:text-xs sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white transition-all">LOGIN</button>
                     </div>
                 </div>
             </form>
             <div id="logout-section" class="hidden flex-col gap-4 mt-2">
-                <div class="text-sm text-cyan-300 text-center">CURRENTLY LOGGED IN</div>
-                <div class="text-center text-neon-cyan text-lg sys-font mb-2" id="logged-in-email">--</div>
-                <button type="button" onclick="handleLogout()" class="w-full px-4 py-2 text-xs sys-font bg-red-900/30 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white transition-all">LOGOUT & RETURN TO GUEST</button>
-                <button type="button" onclick="closeAuthModal()" class="mt-2 px-3 py-2 text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors w-full text-center">CLOSE</button>
+                <div class="text-xs md:text-sm text-cyan-300 text-center">CURRENTLY LOGGED IN</div>
+                <div class="text-center text-neon-cyan text-base md:text-lg sys-font mb-2 break-all" id="logged-in-email">--</div>
+                <button type="button" onclick="handleLogout()" class="w-full px-4 py-2 text-[10px] md:text-xs sys-font bg-red-900/30 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white transition-all">LOGOUT & RETURN TO GUEST</button>
+                <button type="button" onclick="closeAuthModal()" class="mt-2 px-3 py-2 text-[10px] md:text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors w-full text-center">CLOSE</button>
             </div>
         </div>
     </div>
@@ -462,15 +479,15 @@
 
             const alertHtml = `
                 <div id="system-alert" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center p-4">
-                    <div class="hud-panel w-full max-w-lg p-6 border-neon-red shadow-[0_0_20px_rgba(255,0,0,0.3)]">
-                        <h3 class="sys-font text-neon-red text-lg mb-4 border-b border-red-800 pb-2">
+                    <div class="hud-panel w-full max-w-lg p-5 md:p-6 border-neon-red shadow-[0_0_20px_rgba(255,0,0,0.3)]">
+                        <h3 class="sys-font text-neon-red text-base md:text-lg mb-4 border-b border-red-800 pb-2">
                             <i class="fas fa-exclamation-triangle mr-2 animate-pulse"></i>${title}
                         </h3>
-                        <div class="text-sm text-cyan-100 mb-6 leading-relaxed">
+                        <div class="text-xs md:text-sm text-cyan-100 mb-6 leading-relaxed">
                             ${message}
                         </div>
                         <div class="text-right">
-                            <button onclick="document.getElementById('system-alert').remove()" class="px-6 py-2 text-xs sys-font bg-red-900/50 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white transition-all">ACKNOWLEDGE</button>
+                            <button onclick="document.getElementById('system-alert').remove()" class="px-5 py-2 text-[10px] md:text-xs sys-font bg-red-900/50 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white transition-all">ACKNOWLEDGE</button>
                         </div>
                     </div>
                 </div>
@@ -527,16 +544,16 @@
                 const statusEl = document.getElementById('auth-status');
                 
                 if (user.isAnonymous) {
-                    displayEl.innerText = 'GUEST';
-                    statusEl.innerText = 'SYNC ACTIVE (GUEST)';
+                    if(displayEl) displayEl.innerText = 'GUEST';
+                    if(statusEl) statusEl.innerText = 'SYNC ACTIVE (GUEST)';
                 } else if (user.email) {
-                    displayEl.innerText = user.email.split('@')[0].toUpperCase();
-                    statusEl.innerText = 'SYNC ACTIVE (USER)';
+                    if(displayEl) displayEl.innerText = user.email.split('@')[0].toUpperCase();
+                    if(statusEl) statusEl.innerText = 'SYNC ACTIVE (USER)';
                 } else {
-                    displayEl.innerText = 'ADMIN';
-                    statusEl.innerText = 'SYNC ACTIVE (SYS)';
+                    if(displayEl) displayEl.innerText = 'ADMIN';
+                    if(statusEl) statusEl.innerText = 'SYNC ACTIVE (SYS)';
                 }
-                statusEl.className = 'text-neon-cyan';
+                if(statusEl) statusEl.className = 'text-neon-cyan';
                 
                 if (unsubscribeDb) unsubscribeDb();
                 setupDatabaseListener();
@@ -578,13 +595,13 @@
                 const statusEl = document.getElementById('auth-status');
                 
                 if (error.message && error.message.includes('permission')) {
-                    statusEl.innerText = 'DB PERMISSION DENIED (CHECK RULES)';
+                    if(statusEl) statusEl.innerText = 'DB PERMISSION DENIED (CHECK RULES)';
                     window.showSystemAlert('DATABASE PERMISSION ERROR', 
                         `Firestoreのセキュリティルールによりアクセスが拒否されています。<br><br>
                         1. Firebase Consoleの「Firestore Database」を開く<br>
                         2. 「ルール」タブを選択<br>
                         3. 以下のコードに書き換えて「公開」を押してください。<br>
-                        <pre class="bg-black/80 p-3 mt-3 text-xs text-neon-green border border-cyan-800 select-all overflow-x-auto">
+                        <pre class="bg-black/80 p-3 mt-3 text-[10px] text-neon-green border border-cyan-800 select-all overflow-x-auto whitespace-pre-wrap">
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -595,9 +612,9 @@ service cloud.firestore {
 }</pre>`
                     );
                 } else {
-                    statusEl.innerText = 'SYNC ERROR';
+                    if(statusEl) statusEl.innerText = 'SYNC ERROR';
                 }
-                statusEl.className = 'text-neon-red';
+                if(statusEl) statusEl.className = 'text-neon-red';
             });
         }
 
@@ -608,11 +625,12 @@ service cloud.firestore {
             vehicles.forEach(v => {
                 const isActive = v.id === currentVehicleId;
                 const btn = document.createElement('button');
-                btn.className = `text-left p-3 border-l-4 transition-all ${isActive ? 'bg-cyan-900/40 border-neon-cyan text-white' : 'border-transparent text-cyan-600 hover:bg-cyan-900/20 hover:border-cyan-700'}`;
+                // モバイル時は横並び（min-w）、PC時は縦並び
+                btn.className = `shrink-0 min-w-[120px] md:min-w-0 w-auto md:w-full text-left p-2 md:p-3 border-b-4 md:border-b-0 md:border-l-4 transition-all ${isActive ? 'bg-cyan-900/40 border-neon-cyan text-white' : 'border-transparent text-cyan-600 hover:bg-cyan-900/20 hover:border-cyan-700'}`;
                 btn.onclick = () => selectVehicle(v.id);
                 btn.innerHTML = `
-                    <div class="font-bold tracking-wide">${v.name}</div>
-                    <div class="text-[10px] sys-font mt-1 opacity-70">${v.plate}</div>
+                    <div class="font-bold tracking-wide text-[10px] md:text-sm truncate">${v.name}</div>
+                    <div class="text-[8px] md:text-[10px] sys-font mt-0.5 md:mt-1 opacity-70 truncate">${v.plate}</div>
                 `;
                 list.appendChild(btn);
             });
@@ -631,21 +649,21 @@ service cloud.firestore {
             // Populate Info
             document.getElementById('v-name').innerText = v.name;
             document.getElementById('v-plate').innerText = v.plate;
-            document.getElementById('v-maker').innerText = v.maker;
-            document.getElementById('v-year').innerText = v.year;
+            document.getElementById('v-maker').innerText = v.maker || '--';
+            document.getElementById('v-year').innerText = v.year || '--';
 
             const imgContainer = document.getElementById('v-image-container');
             if (v.image) {
                 imgContainer.innerHTML = `<img src="${v.image}" class="w-full h-full object-cover" alt="${v.name}">`;
             } else {
-                imgContainer.innerHTML = `<i class="fas fa-car-side text-6xl text-cyan-800"></i>`;
+                imgContainer.innerHTML = `<i class="fas fa-car-side text-4xl md:text-6xl text-cyan-800"></i>`;
             }
 
             // Populate Shakensho
-            document.getElementById('s-id').innerText = v.shakensho.id;
-            document.getElementById('s-owner').innerText = v.owner;
-            document.getElementById('s-issue').innerText = v.shakensho.issue;
-            document.getElementById('s-expire').innerText = v.shakensho.expire;
+            document.getElementById('s-id').innerText = v.shakensho.id || '--';
+            document.getElementById('s-owner').innerText = v.owner || '--';
+            document.getElementById('s-issue').innerText = v.shakensho.issue || '--';
+            document.getElementById('s-expire').innerText = v.shakensho.expire || '--';
 
             // Populate Oil Last Change Data
             const oilLastDate = v.maintenance.oil_last_date || '----/--/--';
@@ -665,26 +683,32 @@ service cloud.firestore {
             const elStatus = document.getElementById(`m-${type}-status-text`);
             const elBar = document.getElementById(`m-${type}-bar`);
 
+            if (!targetDateStr) targetDateStr = '----/--/--';
             elDate.innerText = targetDateStr;
 
             const targetDate = new Date(targetDateStr);
             const today = new Date();
             const diffTime = targetDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = isNaN(diffTime) ? 0 : Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            elDays.innerText = diffDays >= 0 ? `${diffDays} DAYS LEFT` : `${Math.abs(diffDays)} DAYS OVER`;
+            elDays.innerText = isNaN(diffTime) ? '-- DAYS' : (diffDays >= 0 ? `${diffDays} DAYS LEFT` : `${Math.abs(diffDays)} DAYS OVER`);
 
             let percentage = (diffDays / baseDaysCycle) * 100;
+            if (isNaN(percentage)) percentage = 0;
             if (percentage > 100) percentage = 100;
             if (percentage < 0) percentage = 0;
 
             elBar.style.width = `${percentage}%`;
 
-            elDate.className = 'text-2xl sys-font mb-2 z-10';
+            elDate.className = 'text-xl md:text-2xl sys-font mb-2 z-10';
             elStatus.className = 'sys-font mb-1';
             elBar.className = 'status-bar-fill';
 
-            if (diffDays < 0) {
+            if (isNaN(diffTime)) {
+                elDate.classList.add('text-gray-500');
+                elStatus.innerText = 'NO DATA';
+                elBar.classList.add('bg-gray-700');
+            } else if (diffDays < 0) {
                 elDate.classList.add('text-neon-red');
                 elStatus.classList.add('text-neon-red');
                 elStatus.innerText = 'DANGER: OVERDUE';
@@ -811,35 +835,35 @@ service cloud.firestore {
             modalTargetType.value = "new_vehicle";
             modalFields.innerHTML = `
                 <div class="flex flex-col gap-2 mb-2 border-b border-cyan-800 pb-3">
-                    <button type="button" onclick="document.getElementById('shakensho-scan').click()" class="hud-panel w-full py-2 text-cyan-300 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center gap-2 cursor-pointer border-cyan-500">
-                        <i class="fas fa-camera"></i> SCAN CERTIFICATE (AUTO-FILL)
+                    <button type="button" onclick="document.getElementById('shakensho-scan').click()" class="hud-panel w-full py-2 md:py-3 text-cyan-300 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-[10px] md:text-xs flex items-center justify-center gap-2 cursor-pointer border-cyan-500">
+                        <i class="fas fa-camera text-base md:text-lg"></i> SCAN CERTIFICATE (AUTO-FILL)
                     </button>
-                    <div id="scan-status" class="text-center text-[10px] text-neon-yellow hidden animate-pulse">ANALYZING IMAGE DATA...</div>
+                    <div id="scan-status" class="text-center text-[8px] md:text-[10px] text-neon-yellow hidden animate-pulse">ANALYZING IMAGE DATA...</div>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="col-span-2 sm:col-span-1">
-                        <div class="text-[10px] text-cyan-500 mb-1">VEHICLE NAME (通称名)</div>
-                        <input type="text" id="inp-name" required placeholder="e.g. PRIUS">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                    <div class="col-span-1">
+                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">VEHICLE NAME (通称名)</div>
+                        <input type="text" id="inp-name" required placeholder="e.g. PRIUS" class="text-xs md:text-sm">
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
-                        <div class="text-[10px] text-cyan-500 mb-1">NUMBER PLATE</div>
-                        <input type="text" id="inp-plate" required placeholder="e.g. 品川 500 あ 12-34">
+                    <div class="col-span-1">
+                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">NUMBER PLATE</div>
+                        <input type="text" id="inp-plate" required placeholder="e.g. 品川 500 あ 12-34" class="text-xs md:text-sm">
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
-                        <div class="text-[10px] text-cyan-500 mb-1">MAKER (車名)</div>
-                        <input type="text" id="inp-maker" placeholder="e.g. TOYOTA">
+                    <div class="col-span-1">
+                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">MAKER (車名)</div>
+                        <input type="text" id="inp-maker" placeholder="e.g. TOYOTA" class="text-xs md:text-sm">
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
-                        <div class="text-[10px] text-cyan-500 mb-1">DOCUMENT ID (車台番号)</div>
-                        <input type="text" id="inp-sid" placeholder="e.g. ZVW50-1234567">
+                    <div class="col-span-1">
+                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">DOCUMENT ID (車台番号)</div>
+                        <input type="text" id="inp-sid" placeholder="e.g. ZVW50-1234567" class="text-xs md:text-sm">
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
-                        <div class="text-[10px] text-cyan-500 mb-1">ISSUE DATE</div>
-                        <input type="date" id="inp-sissue">
+                    <div class="col-span-1">
+                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">ISSUE DATE</div>
+                        <input type="date" id="inp-sissue" class="text-xs md:text-sm">
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
-                        <div class="text-[10px] text-cyan-500 mb-1">EXPIRY DATE</div>
-                        <input type="date" id="inp-sexpire">
+                    <div class="col-span-1">
+                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">EXPIRY DATE</div>
+                        <input type="date" id="inp-sexpire" class="text-xs md:text-sm">
                     </div>
                 </div>
             `;
@@ -852,14 +876,14 @@ service cloud.firestore {
             modalTitle.innerText = "EDIT IDENTITY DATA";
             modalTargetType.value = "edit_vehicle";
             modalFields.innerHTML = `
-                <div class="text-xs text-cyan-500 mb-1">VEHICLE NAME</div>
-                <input type="text" id="inp-name" value="${v.name}" required>
-                <div class="text-xs text-cyan-500 mb-1 mt-2">NUMBER PLATE</div>
-                <input type="text" id="inp-plate" value="${v.plate}" required>
-                <div class="text-xs text-cyan-500 mb-1 mt-2">MAKER</div>
-                <input type="text" id="inp-maker" value="${v.maker}">
-                <div class="text-xs text-cyan-500 mb-1 mt-2">MODEL YEAR</div>
-                <input type="text" id="inp-year" value="${v.year}">
+                <div class="text-[10px] md:text-xs text-cyan-500 mb-1">VEHICLE NAME</div>
+                <input type="text" id="inp-name" value="${v.name || ''}" required class="text-sm">
+                <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">NUMBER PLATE</div>
+                <input type="text" id="inp-plate" value="${v.plate || ''}" required class="text-sm">
+                <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">MAKER</div>
+                <input type="text" id="inp-maker" value="${v.maker || ''}" class="text-sm">
+                <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">MODEL YEAR</div>
+                <input type="text" id="inp-year" value="${v.year || ''}" class="text-sm">
             `;
             modal.classList.remove('hidden');
         };
@@ -869,9 +893,9 @@ service cloud.firestore {
             modalTargetType.value = "system_config";
             const currentKey = localStorage.getItem('gemini_api_key') || '';
             modalFields.innerHTML = `
-                <div class="text-xs text-cyan-500 mb-1">GEMINI API KEY (AI FEATURES)</div>
-                <input type="password" id="inp-api-key" value="${currentKey}" placeholder="AIzaSy...">
-                <div class="text-[10px] text-cyan-700 mt-2">※APIキーはブラウザにローカル保存され、外部には送信されません。</div>
+                <div class="text-[10px] md:text-xs text-cyan-500 mb-1">GEMINI API KEY (AI FEATURES)</div>
+                <input type="password" id="inp-api-key" value="${currentKey}" placeholder="AIzaSy..." class="text-sm">
+                <div class="text-[8px] md:text-[10px] text-cyan-700 mt-2">※APIキーはブラウザにローカル保存され、外部には送信されません。</div>
             `;
             modal.classList.remove('hidden');
         };
@@ -885,40 +909,39 @@ service cloud.firestore {
             if (type === 'shakensho') {
                 modalTitle.innerText = "UPDATE CERTIFICATE DATA";
                 html = `
-                    <div class="text-xs text-cyan-500 mb-1">DOCUMENT ID</div>
-                    <input type="text" id="inp-sid" value="${v.shakensho.id}" required>
-                    <div class="text-xs text-cyan-500 mb-1 mt-2">ISSUE DATE</div>
-                    <input type="date" id="inp-sissue" value="${v.shakensho.issue}" required>
-                    <div class="text-xs text-cyan-500 mb-1 mt-2">EXPIRY DATE</div>
-                    <input type="date" id="inp-sexpire" value="${v.shakensho.expire}" required>
+                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">DOCUMENT ID</div>
+                    <input type="text" id="inp-sid" value="${v.shakensho.id || ''}" required class="text-sm">
+                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">ISSUE DATE</div>
+                    <input type="date" id="inp-sissue" value="${v.shakensho.issue || ''}" required class="text-sm">
+                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">EXPIRY DATE</div>
+                    <input type="date" id="inp-sexpire" value="${v.shakensho.expire || ''}" required class="text-sm">
                 `;
             } else if (type === 'oil') {
                 modalTitle.innerText = "UPDATE ENGINE OIL SCHEDULE";
                 
-                // 次回予定日のデフォルトを半年後に設定
                 const nextDate = new Date();
                 nextDate.setMonth(nextDate.getMonth() + 6);
                 const defaultNext = nextDate.toISOString().split('T')[0];
                 const today = new Date().toISOString().split('T')[0];
 
                 html = `
-                    <div class="text-xs text-cyan-500 mb-1">LAST CHANGED DATE (今回交換した日)</div>
-                    <input type="date" id="inp-oil-last-date" value="${v.maintenance.oil_last_date || today}" required>
+                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">LAST CHANGED DATE (今回交換した日)</div>
+                    <input type="date" id="inp-oil-last-date" value="${v.maintenance.oil_last_date || today}" required class="text-sm">
                     
-                    <div class="text-xs text-cyan-500 mb-1 mt-2">ODOMETER (交換時の走行距離 km)</div>
-                    <input type="number" id="inp-oil-last-km" value="${v.maintenance.oil_last_km || ''}" placeholder="e.g. 15000">
+                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">ODOMETER (交換時の走行距離 km)</div>
+                    <input type="number" id="inp-oil-last-km" value="${v.maintenance.oil_last_km || ''}" placeholder="e.g. 15000" class="text-sm">
 
-                    <div class="text-xs text-cyan-500 mb-1 mt-2">NEXT DUE DATE (次回交換予定日)</div>
-                    <input type="date" id="inp-date" value="${v.maintenance.oil || defaultNext}" required>
-                    <div class="text-[10px] text-cyan-700 mt-1">※自動で半年後の日付がセットされています。</div>
+                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">NEXT DUE DATE (次回交換予定日)</div>
+                    <input type="date" id="inp-date" value="${v.maintenance.oil || defaultNext}" required class="text-sm">
+                    <div class="text-[8px] md:text-[10px] text-cyan-700 mt-1">※自動で半年後の日付がセットされています。</div>
                 `;
             } else {
                 const titles = { 'shaken': 'INSPECTION DEADLINE', 'tires': 'TIRE CHANGE SCHEDULE', 'insurance': 'INSURANCE RENEWAL' };
                 const valMap = { 'shaken': v.maintenance.shaken, 'tires': v.maintenance.tires, 'insurance': v.maintenance.insurance };
                 modalTitle.innerText = `UPDATE ${titles[type]}`;
                 html = `
-                    <div class="text-xs text-cyan-500 mb-1">NEXT DUE DATE</div>
-                    <input type="date" id="inp-date" value="${valMap[type]}" required>
+                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">NEXT DUE DATE</div>
+                    <input type="date" id="inp-date" value="${valMap[type] || ''}" required class="text-sm">
                 `;
             }
             modalFields.innerHTML = html;
@@ -1044,7 +1067,7 @@ service cloud.firestore {
             const savedApiKey = (localStorage.getItem('gemini_api_key') || "").trim();
 
             statusEl.innerText = "ANALYZING IMAGE DATA...";
-            statusEl.className = "text-center text-[10px] text-neon-yellow animate-pulse";
+            statusEl.className = "text-center text-[8px] md:text-[10px] text-neon-yellow animate-pulse mt-2";
 
             try {
                 const base64String = await new Promise((resolve, reject) => {
@@ -1124,7 +1147,7 @@ service cloud.firestore {
                 if (resultJson.expireDate) document.getElementById('inp-sexpire').value = resultJson.expireDate;
                 
                 statusEl.innerText = "DATA EXTRACTED SUCCESSFULLY";
-                statusEl.className = "text-center text-[10px] text-neon-green";
+                statusEl.className = "text-center text-[8px] md:text-[10px] text-neon-green mt-2";
             } catch (error) {
                 console.error("Scan Error Details:", error);
                 let errMsg = error.message;
@@ -1133,7 +1156,7 @@ service cloud.firestore {
                 }
                 // APIキーの有無によってエラーメッセージを切り替え、詳細なエラー内容も表示する
                 statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${errMsg}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
-                statusEl.className = "text-center text-[10px] text-neon-red";
+                statusEl.className = "text-center text-[8px] md:text-[10px] text-neon-red mt-2";
             }
             event.target.value = '';
         };
