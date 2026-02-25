@@ -969,9 +969,9 @@ service cloud.firestore {
             `;
 
             try {
-                // 自動フォールバック用モデルリスト
+                // 自動フォールバック用モデルリスト（最新モデルに更新）
                 const modelsToTry = savedApiKey 
-                    ? ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash", "gemini-1.0-pro-latest"] 
+                    ? ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-pro"] 
                     : ["gemini-2.5-flash-preview-09-2025"];
 
                 const payload = {
@@ -1024,7 +1024,11 @@ service cloud.firestore {
 
             } catch (error) {
                 console.error("AI Error:", error);
-                const msg = savedApiKey ? `AI CORE UNREACHABLE.<br>${error.message}` : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
+                let errMsg = error.message;
+                if (errMsg.includes("404")) {
+                    errMsg += "<br><br><span class='text-yellow-400'>※FirebaseのAPIキーではなく、Google AI Studio専用のAPIキーを設定しているか確認してください。</span>";
+                }
+                const msg = savedApiKey ? `AI CORE UNREACHABLE.<br>${errMsg}` : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
                 aiContent.innerHTML = `<div class="text-neon-red text-center mt-10"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><br>ERROR: ${msg}</div>`;
             }
         };
@@ -1053,9 +1057,9 @@ service cloud.firestore {
                 const mimeType = base64String.split(';')[0].split(':')[1];
                 const base64Data = base64String.split(',')[1];
                 
-                // 画像スキャン対応モデルの自動フォールバックリスト
+                // 画像スキャン対応モデルの自動フォールバックリスト（最新モデルに更新）
                 const modelsToTry = savedApiKey 
-                    ? ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash"] 
+                    ? ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"] 
                     : ["gemini-2.5-flash-preview-09-2025"];
 
                 const payload = {
@@ -1123,8 +1127,12 @@ service cloud.firestore {
                 statusEl.className = "text-center text-[10px] text-neon-green";
             } catch (error) {
                 console.error("Scan Error Details:", error);
+                let errMsg = error.message;
+                if (errMsg.includes("404")) {
+                    errMsg += "<br><br><span class='text-[#ff0]'>※Firebaseのキーではなく、Google AI Studio専用のAPIキーを入力してください。</span>";
+                }
                 // APIキーの有無によってエラーメッセージを切り替え、詳細なエラー内容も表示する
-                statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${error.message}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
+                statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${errMsg}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
                 statusEl.className = "text-center text-[10px] text-neon-red";
             }
             event.target.value = '';
