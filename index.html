@@ -936,8 +936,9 @@ service cloud.firestore {
             
             aiContent.innerHTML = `<div class="text-neon-yellow animate-pulse text-center mt-10"><i class="fas fa-satellite-dish text-4xl mb-4"></i><br>ESTABLISHING UPLINK TO AI CORE...<br>ANALYZING VEHICLE TELEMETRY...</div>`;
 
-            const savedApiKey = localStorage.getItem('gemini_api_key') || "";
-            const modelName = "gemini-2.5-flash-preview-09-2025";
+            // APIキー取得時に前後の空白を削除
+            const savedApiKey = (localStorage.getItem('gemini_api_key') || "").trim();
+            const modelName = savedApiKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025";
 
             // Calculate current stats to feed the AI prompt
             const today = new Date();
@@ -977,6 +978,7 @@ service cloud.firestore {
 
                 // Added simple retry logic
                 let resultJson = null;
+                let lastErrorMsg = "";
                 for (let i = 0; i < 3; i++) {
                     try {
                         const response = await fetch(url, {
@@ -984,10 +986,14 @@ service cloud.firestore {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        if (!response.ok) {
+                            const errData = await response.json().catch(() => ({}));
+                            throw new Error(`HTTP ${response.status}: ${errData?.error?.message || 'Unknown API Error'}`);
+                        }
                         resultJson = await response.json();
                         break;
                     } catch (err) {
+                        lastErrorMsg = err.message;
                         if(i === 2) throw err;
                         await new Promise(res => setTimeout(res, 1000 * (i+1)));
                     }
@@ -1010,7 +1016,7 @@ service cloud.firestore {
 
             } catch (error) {
                 console.error("AI Error:", error);
-                const msg = savedApiKey ? "AI CORE UNREACHABLE. CONNECTION FAILED." : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
+                const msg = savedApiKey ? `AI CORE UNREACHABLE.<br>${error.message}` : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
                 aiContent.innerHTML = `<div class="text-neon-red text-center mt-10"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><br>ERROR: ${msg}</div>`;
             }
         };
@@ -1022,11 +1028,11 @@ service cloud.firestore {
             const statusEl = document.getElementById('scan-status');
             statusEl.classList.remove('hidden');
             
-            // Get user key or fallback to empty string (which allows the canvas environment to inject its default key)
-            const savedApiKey = localStorage.getItem('gemini_api_key') || "";
+            // APIキー取得時に前後の空白を削除
+            const savedApiKey = (localStorage.getItem('gemini_api_key') || "").trim();
             
-            // プレビュー環境・公開環境問わず、サポートされている指定モデルを使用します
-            const modelName = "gemini-2.5-flash-preview-09-2025";
+            // カスタムAPIキーがある場合（GitHub Pages等）は一般公開モデルを、ない場合はプレビュー専用モデルを使用
+            const modelName = savedApiKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025";
 
             statusEl.innerText = "ANALYZING IMAGE DATA...";
             statusEl.className = "text-center text-[10px] text-neon-yellow animate-pulse";
@@ -1070,6 +1076,7 @@ service cloud.firestore {
                 let resultJson = null;
                 let retries = 5;
                 let delay = 1000;
+                let lastError = "";
                 for (let i = 0; i < retries; i++) {
                     try {
                         const response = await fetch(url, {
@@ -1077,12 +1084,16 @@ service cloud.firestore {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        if (!response.ok) {
+                            const errData = await response.json().catch(() => ({}));
+                            throw new Error(`HTTP ${response.status}: ${errData?.error?.message || 'Unknown API Error'}`);
+                        }
                         const result = await response.json();
                         const text = result.candidates[0].content.parts[0].text;
                         resultJson = JSON.parse(text);
                         break;
                     } catch (error) {
+                        lastError = error.message;
                         if (i === retries - 1) throw error;
                         await new Promise(res => setTimeout(res, delay));
                         delay *= 2;
@@ -1101,9 +1112,9 @@ service cloud.firestore {
                     statusEl.className = "text-center text-[10px] text-neon-green";
                 }
             } catch (error) {
-                console.error("Scan Error:", error);
-                // APIキーの有無によってエラーメッセージを切り替え
-                statusEl.innerText = savedApiKey ? "SCAN FAILED. PLEASE CHECK YOUR API KEY." : "SCAN FAILED. PLEASE ENTER MANUALLY.";
+                console.error("Scan Error Details:", error);
+                // APIキーの有無によってエラーメッセージを切り替え、詳細なエラー内容も表示する
+                statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${error.message}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
                 statusEl.className = "text-center text-[10px] text-neon-red";
             }
             event.target.value = '';
@@ -1164,7 +1175,8 @@ service cloud.firestore {
             const type = modalTargetType.value;
 
             if (type === 'system_config') {
-                const newKey = document.getElementById('inp-api-key').value;
+                // 保存時に空白を削除
+                const newKey = document.getElementById('inp-api-key').value.trim();
                 localStorage.setItem('gemini_api_key', newKey);
                 window.closeModal();
                 return;
