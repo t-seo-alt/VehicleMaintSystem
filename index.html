@@ -126,7 +126,7 @@
             backdrop-filter: blur(10px);
         }
         
-        input[type="date"], input[type="text"] {
+        input[type="date"], input[type="text"], input[type="password"], input[type="number"], input[type="email"] {
             background: rgba(0, 20, 40, 0.8);
             border: 1px solid var(--neon-cyan);
             color: var(--neon-cyan);
@@ -137,6 +137,14 @@
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(130deg);
         }
+
+        /* Typewriter effect for AI */
+        .ai-text {
+            border-right: 2px solid var(--neon-yellow);
+            white-space: pre-wrap;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 50% { border-color: transparent; } }
     </style>
 </head>
 <body class="text-sm">
@@ -156,9 +164,17 @@
                 <div class="sys-font text-cyan-400" id="current-time">00:00:00</div>
                 <div class="text-[10px] text-cyan-700">SYSTEM STATUS: <span id="auth-status" class="text-neon-yellow animate-pulse">CONNECTING...</span></div>
             </div>
-            <button onclick="openAddVehicleModal()" class="hud-panel px-4 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center gap-2 cursor-pointer relative z-20">
-                <i class="fas fa-plus"></i> ADD VEHICLE
-            </button>
+            <div class="flex gap-2">
+                <button onclick="openAuthModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center cursor-pointer relative z-20" title="USER AUTHENTICATION">
+                    <i class="fas fa-user"></i> <span id="user-display-name" class="ml-2 hidden sm:inline">GUEST</span>
+                </button>
+                <button onclick="openConfigModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center cursor-pointer relative z-20" title="SYSTEM CONFIG">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button onclick="openAddVehicleModal()" class="hud-panel px-4 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center gap-2 cursor-pointer relative z-20">
+                    <i class="fas fa-plus"></i> ADD VEHICLE
+                </button>
+            </div>
         </div>
     </header>
 
@@ -241,7 +257,12 @@
 
                 <!-- Maintenance Modules -->
                 <div>
-                    <h2 class="sys-font text-cyan-500 text-sm mb-4 tracking-widest border-l-2 border-cyan-500 pl-2">MAINTENANCE CYCLE MODULES</h2>
+                    <div class="flex justify-between items-center mb-4 border-l-2 border-cyan-500 pl-2">
+                        <h2 class="sys-font text-cyan-500 text-sm tracking-widest">MAINTENANCE CYCLE MODULES</h2>
+                        <button onclick="openAiDiagnostics()" class="hud-panel px-4 py-2 text-neon-yellow hover:bg-yellow-900/30 transition-colors sys-font text-xs flex items-center gap-2 border-yellow-500/50 cursor-pointer shadow-[0_0_10px_rgba(255,255,0,0.2)]">
+                            <i class="fas fa-brain animate-pulse"></i> AI SYS-CHECK ✨
+                        </button>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                         
                         <!-- Shaken (Inspection) -->
@@ -273,6 +294,7 @@
                                 <div class="sys-font text-sm text-cyan-300"><i class="fas fa-oil-can mr-2"></i>ENGINE OIL</div>
                                 <button onclick="openUpdateModal('oil')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
+                            <div class="text-[10px] text-cyan-600 mb-1 z-10 sys-font" id="m-oil-last">LAST: -- ( -- km )</div>
                             <div class="text-[10px] text-gray-400 mb-1 z-10">次回交換予定日</div>
                             <div class="text-2xl sys-font mb-2 z-10" id="m-oil-date">--</div>
                             <div class="mt-auto z-10">
@@ -357,26 +379,104 @@
         </div>
     </div>
 
+    <!-- AI Diagnostics Terminal Modal -->
+    <div id="ai-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="hud-panel w-full max-w-2xl p-6 border-neon-yellow shadow-[0_0_20px_rgba(255,255,0,0.15)] flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-center mb-4 border-b border-yellow-800 pb-2">
+                <h3 class="sys-font text-neon-yellow text-lg"><i class="fas fa-microchip mr-2 animate-pulse"></i>AI DIAGNOSTICS CORE ✨</h3>
+                <button onclick="closeAiModal()" class="text-yellow-700 hover:text-neon-yellow transition-colors"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 bg-black/60 border border-yellow-900/50 rounded">
+                <div id="ai-content" class="text-sm leading-relaxed font-mono">
+                    <!-- AI response injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="hud-panel w-full max-w-sm p-6">
+            <h3 class="sys-font text-neon-cyan text-lg mb-4 border-b border-cyan-800 pb-2">SYSTEM AUTHENTICATION</h3>
+            <form id="auth-form" class="flex flex-col gap-4">
+                <div>
+                    <div class="text-xs text-cyan-500 mb-1">EMAIL</div>
+                    <input type="email" id="auth-email" required placeholder="user@sys-com.net">
+                </div>
+                <div>
+                    <div class="text-xs text-cyan-500 mb-1">PASSWORD</div>
+                    <input type="password" id="auth-pass" required placeholder="••••••••" minlength="6">
+                </div>
+                <div id="auth-error" class="text-neon-red text-[10px] hidden break-words"></div>
+                <div class="flex justify-between gap-3 mt-2 pt-4 border-t border-cyan-800">
+                    <button type="button" onclick="closeAuthModal()" class="px-3 py-2 text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors">CANCEL</button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="handleAuth('register')" class="px-4 py-2 text-xs sys-font text-cyan-400 border border-cyan-700 hover:bg-cyan-900/50 transition-all">REGISTER</button>
+                        <button type="button" onclick="handleAuth('login')" class="px-4 py-2 text-xs sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white transition-all">LOGIN</button>
+                    </div>
+                </div>
+            </form>
+            <div id="logout-section" class="hidden flex-col gap-4 mt-2">
+                <div class="text-sm text-cyan-300 text-center">CURRENTLY LOGGED IN</div>
+                <div class="text-center text-neon-cyan text-lg sys-font mb-2" id="logged-in-email">--</div>
+                <button type="button" onclick="handleLogout()" class="w-full px-4 py-2 text-xs sys-font bg-red-900/30 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white transition-all">LOGOUT & RETURN TO GUEST</button>
+                <button type="button" onclick="closeAuthModal()" class="mt-2 px-3 py-2 text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors w-full text-center">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Hidden File Input for Image Upload -->
     <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
     <input type="file" id="shakensho-scan" accept="image/*" class="hidden" onchange="handleShakenshoScan(event)">
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Init ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVCyp0vvdtzyrkAAAFPaN1oziixnWf4HQ",
+            authDomain: "vehicle-maint-app.firebaseapp.com",
+            projectId: "vehicle-maint-app",
+            storageBucket: "vehicle-maint-app.firebasestorage.app",
+            messagingSenderId: "489216421459",
+            appId: "1:489216421459:web:d903195ec3535a1f9a60a6"
+        };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        // プレビュー環境での必須ルールに従うための厳密なパス構成
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'vehicle-maint-app-v1'; 
         
         let userId = null;
         let unsubscribeDb = null;
         let vehicles = [];
         let currentVehicleId = null;
+
+        // --- Global Alert System ---
+        window.showSystemAlert = (title, message) => {
+            const existing = document.getElementById('system-alert');
+            if(existing) existing.remove();
+
+            const alertHtml = `
+                <div id="system-alert" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center p-4">
+                    <div class="hud-panel w-full max-w-lg p-6 border-neon-red shadow-[0_0_20px_rgba(255,0,0,0.3)]">
+                        <h3 class="sys-font text-neon-red text-lg mb-4 border-b border-red-800 pb-2">
+                            <i class="fas fa-exclamation-triangle mr-2 animate-pulse"></i>${title}
+                        </h3>
+                        <div class="text-sm text-cyan-100 mb-6 leading-relaxed">
+                            ${message}
+                        </div>
+                        <div class="text-right">
+                            <button onclick="document.getElementById('system-alert').remove()" class="px-6 py-2 text-xs sys-font bg-red-900/50 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white transition-all">ACKNOWLEDGE</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', alertHtml);
+        };
 
         // --- Clock Update ---
         function updateTime() {
@@ -390,30 +490,61 @@
         const initAuth = async () => {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } catch (tokenError) {
+                        console.warn("Token mismatch. Falling back to anonymous auth.");
+                        await signInAnonymously(auth);
+                    }
                 } else {
                     await signInAnonymously(auth);
                 }
             } catch (error) {
-                console.error("Authentication Error:", error);
-                document.getElementById('auth-status').innerText = 'AUTH FAILED';
-                document.getElementById('auth-status').className = 'text-neon-red';
+                console.error("Auth Init Error:", error);
+                const statusEl = document.getElementById('auth-status');
+                if(statusEl) {
+                    statusEl.innerText = 'AUTH FAILED';
+                    statusEl.className = 'text-neon-red';
+                }
+                if (error.code === 'auth/operation-not-allowed') {
+                    window.showSystemAlert('ANONYMOUS AUTH DISABLED', 
+                        `Firebaseの「匿名ログイン」が無効になっています。<br><br>
+                        1. Firebase Consoleを開く<br>
+                        2. 「Authentication」>「Sign-in method」を選択<br>
+                        3. 「匿名」を「有効」にして保存してください。`
+                    );
+                }
             }
         };
+
+        // Initialize Authentication flow
+        initAuth();
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userId = user.uid;
-                document.getElementById('auth-status').innerText = 'SYNC ACTIVE';
-                document.getElementById('auth-status').className = 'text-neon-cyan';
+                const displayEl = document.getElementById('user-display-name');
+                const statusEl = document.getElementById('auth-status');
+                
+                if (user.isAnonymous) {
+                    displayEl.innerText = 'GUEST';
+                    statusEl.innerText = 'SYNC ACTIVE (GUEST)';
+                } else if (user.email) {
+                    displayEl.innerText = user.email.split('@')[0].toUpperCase();
+                    statusEl.innerText = 'SYNC ACTIVE (USER)';
+                } else {
+                    displayEl.innerText = 'ADMIN';
+                    statusEl.innerText = 'SYNC ACTIVE (SYS)';
+                }
+                statusEl.className = 'text-neon-cyan';
+                
+                if (unsubscribeDb) unsubscribeDb();
                 setupDatabaseListener();
             } else {
                 userId = null;
                 if (unsubscribeDb) unsubscribeDb();
             }
         });
-
-        initAuth();
 
         function setupDatabaseListener() {
             if (!userId) return;
@@ -444,8 +575,29 @@
                 }
             }, (error) => {
                 console.error("DB Sync Error:", error);
-                document.getElementById('auth-status').innerText = 'SYNC ERROR';
-                document.getElementById('auth-status').className = 'text-neon-red';
+                const statusEl = document.getElementById('auth-status');
+                
+                if (error.message && error.message.includes('permission')) {
+                    statusEl.innerText = 'DB PERMISSION DENIED (CHECK RULES)';
+                    window.showSystemAlert('DATABASE PERMISSION ERROR', 
+                        `Firestoreのセキュリティルールによりアクセスが拒否されています。<br><br>
+                        1. Firebase Consoleの「Firestore Database」を開く<br>
+                        2. 「ルール」タブを選択<br>
+                        3. 以下のコードに書き換えて「公開」を押してください。<br>
+                        <pre class="bg-black/80 p-3 mt-3 text-xs text-neon-green border border-cyan-800 select-all overflow-x-auto">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</pre>`
+                    );
+                } else {
+                    statusEl.innerText = 'SYNC ERROR';
+                }
+                statusEl.className = 'text-neon-red';
             });
         }
 
@@ -494,6 +646,11 @@
             document.getElementById('s-owner').innerText = v.owner;
             document.getElementById('s-issue').innerText = v.shakensho.issue;
             document.getElementById('s-expire').innerText = v.shakensho.expire;
+
+            // Populate Oil Last Change Data
+            const oilLastDate = v.maintenance.oil_last_date || '----/--/--';
+            const oilLastKm = v.maintenance.oil_last_km ? Number(v.maintenance.oil_last_km).toLocaleString() + ' km' : '-- km';
+            document.getElementById('m-oil-last').innerText = `LAST: ${oilLastDate} ( ${oilLastKm} )`;
 
             // Calculate & Render Maintenance Modules
             renderMaintenanceModule('shaken', v.maintenance.shaken, 730);
@@ -558,6 +715,97 @@
             modalTitle.classList.add('text-neon-cyan');
         };
 
+        window.closeAiModal = () => {
+            document.getElementById('ai-modal').classList.add('hidden');
+            document.getElementById('ai-content').innerHTML = ''; // reset
+        }
+
+        window.openAuthModal = () => {
+            const modal = document.getElementById('auth-modal');
+            const form = document.getElementById('auth-form');
+            const logoutSec = document.getElementById('logout-section');
+            const errEl = document.getElementById('auth-error');
+            
+            errEl.classList.add('hidden');
+            modal.classList.remove('hidden');
+            
+            const user = auth.currentUser;
+            if (user && !user.isAnonymous && user.email) {
+                document.getElementById('logged-in-email').innerText = user.email;
+                form.classList.add('hidden');
+                form.classList.remove('flex');
+                logoutSec.classList.remove('hidden');
+                logoutSec.classList.add('flex');
+            } else {
+                form.classList.remove('hidden');
+                form.classList.add('flex');
+                logoutSec.classList.add('hidden');
+                logoutSec.classList.remove('flex');
+            }
+        };
+
+        window.closeAuthModal = () => {
+            document.getElementById('auth-modal').classList.add('hidden');
+        };
+
+        window.handleAuth = async (action) => {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            const errEl = document.getElementById('auth-error');
+            
+            if (!email || !pass) {
+                errEl.innerText = "ERROR: EMAIL AND PASSWORD REQUIRED.";
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            if (action === 'register' && pass.length < 6) {
+                errEl.innerText = "ERROR: PASSWORD MUST BE AT LEAST 6 CHARACTERS.";
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                if (action === 'login') {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                } else if (action === 'register') {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                }
+                // Clear input
+                document.getElementById('auth-email').value = '';
+                document.getElementById('auth-pass').value = '';
+                window.closeAuthModal();
+            } catch (error) {
+                console.error("Auth Error:", error);
+                let msg = error.message;
+                if (error.code === 'auth/weak-password') msg = 'PASSWORD MUST BE AT LEAST 6 CHARACTERS.';
+                else if (error.code === 'auth/email-already-in-use') msg = 'EMAIL ALREADY REGISTERED.';
+                else if (error.code === 'auth/invalid-credential') msg = 'INVALID EMAIL OR PASSWORD.';
+                else if (error.code === 'auth/operation-not-allowed') {
+                    msg = 'EMAIL AUTH DISABLED. PLEASE ENABLE IN FIREBASE CONSOLE.';
+                    window.showSystemAlert('AUTHENTICATION ERROR', 
+                        `Firebaseの「メール/パスワード認証」が無効になっています。<br><br>
+                        1. Firebase Consoleを開く<br>
+                        2. 「Authentication」>「Sign-in method」を選択<br>
+                        3. 「メール/パスワード」を「有効」にして保存してください。`
+                    );
+                }
+                
+                errEl.innerText = "AUTH FAILED: " + msg;
+                errEl.classList.remove('hidden');
+            }
+        };
+
+        window.handleLogout = async () => {
+            try {
+                await signOut(auth);
+                await signInAnonymously(auth); // ログアウト後はゲストモードに戻る
+                window.closeAuthModal();
+            } catch (error) {
+                console.error("Logout Error:", error);
+            }
+        };
+
         window.openAddVehicleModal = () => {
             modalTitle.innerText = "INITIALIZE NEW VEHICLE";
             modalTargetType.value = "new_vehicle";
@@ -616,7 +864,156 @@
             modal.classList.remove('hidden');
         };
 
-        const apiKey = "";
+        window.openConfigModal = () => {
+            modalTitle.innerText = "SYSTEM CONFIGURATION";
+            modalTargetType.value = "system_config";
+            const currentKey = localStorage.getItem('gemini_api_key') || '';
+            modalFields.innerHTML = `
+                <div class="text-xs text-cyan-500 mb-1">GEMINI API KEY (AI FEATURES)</div>
+                <input type="password" id="inp-api-key" value="${currentKey}" placeholder="AIzaSy...">
+                <div class="text-[10px] text-cyan-700 mt-2">※APIキーはブラウザにローカル保存され、外部には送信されません。</div>
+            `;
+            modal.classList.remove('hidden');
+        };
+
+        window.openUpdateModal = (type) => {
+            if(!currentVehicleId) return;
+            const v = vehicles.find(v => v.id === currentVehicleId);
+            modalTargetType.value = type;
+            
+            let html = '';
+            if (type === 'shakensho') {
+                modalTitle.innerText = "UPDATE CERTIFICATE DATA";
+                html = `
+                    <div class="text-xs text-cyan-500 mb-1">DOCUMENT ID</div>
+                    <input type="text" id="inp-sid" value="${v.shakensho.id}" required>
+                    <div class="text-xs text-cyan-500 mb-1 mt-2">ISSUE DATE</div>
+                    <input type="date" id="inp-sissue" value="${v.shakensho.issue}" required>
+                    <div class="text-xs text-cyan-500 mb-1 mt-2">EXPIRY DATE</div>
+                    <input type="date" id="inp-sexpire" value="${v.shakensho.expire}" required>
+                `;
+            } else if (type === 'oil') {
+                modalTitle.innerText = "UPDATE ENGINE OIL SCHEDULE";
+                
+                // 次回予定日のデフォルトを半年後に設定
+                const nextDate = new Date();
+                nextDate.setMonth(nextDate.getMonth() + 6);
+                const defaultNext = nextDate.toISOString().split('T')[0];
+                const today = new Date().toISOString().split('T')[0];
+
+                html = `
+                    <div class="text-xs text-cyan-500 mb-1">LAST CHANGED DATE (今回交換した日)</div>
+                    <input type="date" id="inp-oil-last-date" value="${v.maintenance.oil_last_date || today}" required>
+                    
+                    <div class="text-xs text-cyan-500 mb-1 mt-2">ODOMETER (交換時の走行距離 km)</div>
+                    <input type="number" id="inp-oil-last-km" value="${v.maintenance.oil_last_km || ''}" placeholder="e.g. 15000">
+
+                    <div class="text-xs text-cyan-500 mb-1 mt-2">NEXT DUE DATE (次回交換予定日)</div>
+                    <input type="date" id="inp-date" value="${v.maintenance.oil || defaultNext}" required>
+                    <div class="text-[10px] text-cyan-700 mt-1">※自動で半年後の日付がセットされています。</div>
+                `;
+            } else {
+                const titles = { 'shaken': 'INSPECTION DEADLINE', 'tires': 'TIRE CHANGE SCHEDULE', 'insurance': 'INSURANCE RENEWAL' };
+                const valMap = { 'shaken': v.maintenance.shaken, 'tires': v.maintenance.tires, 'insurance': v.maintenance.insurance };
+                modalTitle.innerText = `UPDATE ${titles[type]}`;
+                html = `
+                    <div class="text-xs text-cyan-500 mb-1">NEXT DUE DATE</div>
+                    <input type="date" id="inp-date" value="${valMap[type]}" required>
+                `;
+            }
+            modalFields.innerHTML = html;
+            modal.classList.remove('hidden');
+        };
+
+        // --- AI Features ---
+        window.openAiDiagnostics = async () => {
+            if(!currentVehicleId) return;
+            const v = vehicles.find(v => v.id === currentVehicleId);
+
+            const aiModal = document.getElementById('ai-modal');
+            const aiContent = document.getElementById('ai-content');
+            aiModal.classList.remove('hidden');
+            
+            aiContent.innerHTML = `<div class="text-neon-yellow animate-pulse text-center mt-10"><i class="fas fa-satellite-dish text-4xl mb-4"></i><br>ESTABLISHING UPLINK TO AI CORE...<br>ANALYZING VEHICLE TELEMETRY...</div>`;
+
+            const savedApiKey = localStorage.getItem('gemini_api_key') || "";
+            const modelName = "gemini-2.5-flash-preview-09-2025";
+
+            // Calculate current stats to feed the AI prompt
+            const today = new Date();
+            const calcDays = (target) => Math.ceil((new Date(target) - today) / (1000 * 60 * 60 * 24));
+            
+            const oilDays = calcDays(v.maintenance.oil);
+            const tireDays = calcDays(v.maintenance.tires);
+            const shakenDays = calcDays(v.maintenance.shaken);
+            const insDays = calcDays(v.maintenance.insurance);
+
+            const prompt = `
+            あなたは「VEHICLE SYS-COM」という近未来的な車両管理システムに搭載されたAIアドバイザーです。
+            以下の車両データと現在のメンテナンス状況を分析し、ユーザーに向けてシステムレポートとアドバイスを提供してください。
+            
+            【システム要件】
+            - 語り口は、優秀で少し機械的・近未来的なシステムアシスタントのトーンにすること（例：「〜と推測されます」「〜を推奨」「ステータス：警告」など）。
+            - この車種・年式（もし不明な場合は一般的な車として）において注意すべき点や、アドバイスを含めること。
+            - 現在のメンテナンス状況（残り日数）から、緊急度を分析し警告または安心させるメッセージを含めること。
+            - 出力はHTML形式（<p>, <ul>, <li>, <strong>, <br>など）のみで返し、マークダウン（\`\`\`html等）を含めないこと。
+            - 重要な箇所はTailwindの文字色クラス（class="text-neon-cyan" または class="text-neon-yellow" または class="text-neon-red"）を使って強調すること。
+
+            【ターゲット車両データ】
+            - メーカー/車名: ${v.maker} ${v.name}
+            - 年式: ${v.year}
+            - エンジンオイル交換期限: 残り ${oilDays} 日 (前回交換時の走行距離: ${v.maintenance.oil_last_km || '記録なし'} km)
+            - タイヤ交換/ローテーション期限: 残り ${tireDays} 日
+            - 車検満了日: 残り ${shakenDays} 日
+            - 任意保険更新: 残り ${insDays} 日
+            `;
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${savedApiKey}`;
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.7 }
+                };
+
+                // Added simple retry logic
+                let resultJson = null;
+                for (let i = 0; i < 3; i++) {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        resultJson = await response.json();
+                        break;
+                    } catch (err) {
+                        if(i === 2) throw err;
+                        await new Promise(res => setTimeout(res, 1000 * (i+1)));
+                    }
+                }
+
+                const text = resultJson.candidates[0].content.parts[0].text.replace(/```html|```/g, ''); // sanitize if AI returns markdown
+                
+                aiContent.innerHTML = ''; // clear loading
+                
+                // Simple typewriter effect simulation
+                const resultDiv = document.createElement('div');
+                resultDiv.className = "text-cyan-100";
+                resultDiv.innerHTML = text;
+                aiContent.appendChild(resultDiv);
+                
+                // Add terminal cursor
+                const cursor = document.createElement('div');
+                cursor.className = "ai-text inline-block w-2 h-4 bg-neon-yellow ml-1 align-middle mt-4";
+                aiContent.appendChild(cursor);
+
+            } catch (error) {
+                console.error("AI Error:", error);
+                const msg = savedApiKey ? "AI CORE UNREACHABLE. CONNECTION FAILED." : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
+                aiContent.innerHTML = `<div class="text-neon-red text-center mt-10"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><br>ERROR: ${msg}</div>`;
+            }
+        };
 
         window.handleShakenshoScan = async (event) => {
             const file = event.target.files[0];
@@ -624,6 +1021,13 @@
 
             const statusEl = document.getElementById('scan-status');
             statusEl.classList.remove('hidden');
+            
+            // Get user key or fallback to empty string (which allows the canvas environment to inject its default key)
+            const savedApiKey = localStorage.getItem('gemini_api_key') || "";
+            
+            // プレビュー環境・公開環境問わず、サポートされている指定モデルを使用します
+            const modelName = "gemini-2.5-flash-preview-09-2025";
+
             statusEl.innerText = "ANALYZING IMAGE DATA...";
             statusEl.className = "text-center text-[10px] text-neon-yellow animate-pulse";
 
@@ -638,7 +1042,7 @@
                 const mimeType = base64String.split(';')[0].split(':')[1];
                 const base64Data = base64String.split(',')[1];
                 
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${savedApiKey}`;
                 const payload = {
                     contents: [{
                         role: "user",
@@ -698,7 +1102,8 @@
                 }
             } catch (error) {
                 console.error("Scan Error:", error);
-                statusEl.innerText = "SCAN FAILED. PLEASE ENTER MANUALLY.";
+                // APIキーの有無によってエラーメッセージを切り替え
+                statusEl.innerText = savedApiKey ? "SCAN FAILED. PLEASE CHECK YOUR API KEY." : "SCAN FAILED. PLEASE ENTER MANUALLY.";
                 statusEl.className = "text-center text-[10px] text-neon-red";
             }
             event.target.value = '';
@@ -756,8 +1161,16 @@
 
         updateForm.onsubmit = async (e) => {
             e.preventDefault();
-            if (!userId) return;
             const type = modalTargetType.value;
+
+            if (type === 'system_config') {
+                const newKey = document.getElementById('inp-api-key').value;
+                localStorage.setItem('gemini_api_key', newKey);
+                window.closeModal();
+                return;
+            }
+
+            if (!userId) return;
             
             try {
                 if (type === 'new_vehicle') {
@@ -774,7 +1187,7 @@
                             issue: document.getElementById('inp-sissue')?.value || '2024-01-01', 
                             expire: expireVal 
                         },
-                        maintenance: { shaken: expireVal, oil: '2024-06-01', tires: '2024-12-01', insurance: '2025-01-01' }
+                        maintenance: { shaken: expireVal, oil: '2024-06-01', oil_last_date: '', oil_last_km: '', tires: '2024-12-01', insurance: '2025-01-01' }
                     };
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'vehicles', newId), newVehicleData);
                     currentVehicleId = newId;
@@ -799,6 +1212,10 @@
                         updatedData.shakensho.issue = document.getElementById('inp-sissue').value;
                         updatedData.shakensho.expire = document.getElementById('inp-sexpire').value;
                         updatedData.maintenance.shaken = updatedData.shakensho.expire;
+                    } else if (type === 'oil') {
+                        updatedData.maintenance.oil_last_date = document.getElementById('inp-oil-last-date').value;
+                        updatedData.maintenance.oil_last_km = document.getElementById('inp-oil-last-km').value;
+                        updatedData.maintenance.oil = document.getElementById('inp-date').value;
                     } else {
                         updatedData.maintenance[type] = document.getElementById('inp-date').value;
                     }
