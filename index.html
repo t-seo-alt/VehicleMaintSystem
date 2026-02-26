@@ -104,12 +104,12 @@
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
-        ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.4); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.4); border-radius: 2px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,255,0.8); }
 
-        /* Glitch animation for title */
+        /* Glitch animation */
         @keyframes glitch {
             0% { transform: translate(0) }
             20% { transform: translate(-2px, 2px) }
@@ -151,88 +151,93 @@
     <div class="scanlines"></div>
 
     <!-- Header -->
-    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 md:p-4 border-b border-cyan-800 bg-black/60 z-10 relative shadow-[0_4px_15px_rgba(0,255,255,0.1)] gap-3 sm:gap-0 shrink-0">
-        <div class="flex items-center justify-between w-full sm:w-auto">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-satellite-dish text-neon-cyan animate-pulse text-xl md:text-2xl"></i>
+    <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center p-3 lg:p-4 border-b border-cyan-800 bg-black/60 z-10 relative shadow-[0_4px_15px_rgba(0,255,255,0.1)] gap-3 shrink-0">
+        <div class="flex items-center justify-between w-full lg:w-auto">
+            <div class="flex items-center gap-2 lg:gap-4">
+                <i class="fas fa-satellite-dish text-neon-cyan animate-pulse text-lg lg:text-2xl"></i>
                 <div>
-                    <h1 class="sys-font text-lg md:text-2xl font-bold text-neon-cyan tracking-widest glitch-hover leading-tight">VEHICLE SYS-COM</h1>
-                    <div class="text-[8px] md:text-[10px] text-cyan-600 tracking-[0.2em] mt-0.5">PERSONAL MAINTENANCE DB V2.0</div>
+                    <h1 class="sys-font text-base lg:text-2xl font-bold text-neon-cyan tracking-widest glitch-hover leading-tight">VEHICLE SYS-COM</h1>
+                    <div class="text-[8px] lg:text-[10px] text-cyan-600 tracking-[0.2em]">MAINTENANCE DB V2.0</div>
                 </div>
             </div>
-            <!-- Mobile Auth/Config/Add buttons -->
-            <div class="flex sm:hidden gap-2">
-                <button onclick="openAuthModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font flex items-center justify-center cursor-pointer relative z-20" title="USER AUTHENTICATION">
+            
+            <!-- Mobile Menu Buttons -->
+            <div class="flex lg:hidden gap-2">
+                <button onclick="openAuthModal()" class="hud-panel p-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors" title="USER">
                     <i class="fas fa-user"></i>
                 </button>
-                <button onclick="openConfigModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font flex items-center justify-center cursor-pointer relative z-20" title="SYSTEM CONFIG">
+                <button onclick="openConfigModal()" class="hud-panel p-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors" title="CONFIG">
                     <i class="fas fa-cog"></i>
                 </button>
-                <button onclick="openAddVehicleModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font flex items-center justify-center cursor-pointer relative z-20" title="ADD VEHICLE">
+                <button onclick="openAddVehicleModal()" class="hud-panel p-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors" title="ADD">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
         </div>
-        <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
-            <div class="text-left sm:text-right">
-                <div class="sys-font text-cyan-400 text-xs md:text-sm" id="current-time">00:00:00</div>
-                <div class="text-[8px] md:text-[10px] text-cyan-700">SYS STATUS: <span id="auth-status" class="text-neon-yellow animate-pulse">CONNECTING...</span></div>
+
+        <div class="flex items-center justify-between lg:justify-end w-full lg:w-auto gap-4">
+            <div class="text-left lg:text-right">
+                <div class="sys-font text-cyan-400 text-xs lg:text-sm" id="current-time">00:00:00</div>
+                <div class="text-[8px] lg:text-[10px] text-cyan-700">STATUS: <span id="auth-status" class="text-neon-yellow animate-pulse">CONNECTING...</span></div>
             </div>
-            <!-- Desktop Buttons -->
-            <div class="hidden sm:flex gap-2">
-                <button onclick="openAuthModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center cursor-pointer relative z-20" title="USER AUTHENTICATION">
-                    <i class="fas fa-user"></i> <span id="user-display-name" class="ml-2 hidden lg:inline">GUEST</span>
+            
+            <!-- Desktop Menu Buttons -->
+            <div class="hidden lg:flex gap-2">
+                <button onclick="openAuthModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center">
+                    <i class="fas fa-user"></i> <span id="user-display-name" class="ml-2">GUEST</span>
                 </button>
-                <button onclick="openConfigModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center cursor-pointer relative z-20" title="SYSTEM CONFIG">
+                <button onclick="openConfigModal()" class="hud-panel px-3 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center justify-center">
                     <i class="fas fa-cog"></i>
                 </button>
-                <button onclick="openAddVehicleModal()" class="hud-panel px-4 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center gap-2 cursor-pointer relative z-20">
-                    <i class="fas fa-plus"></i> <span class="hidden md:inline">ADD VEHICLE</span>
+                <button onclick="openAddVehicleModal()" class="hud-panel px-4 py-2 text-cyan-400 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-xs flex items-center gap-2">
+                    <i class="fas fa-plus"></i> ADD VEHICLE
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Content Area: Column on Mobile, Row on Desktop -->
-    <div class="flex flex-col md:flex-row flex-1 overflow-hidden relative z-10">
+    <!-- Main Layout (Column on Mobile, Row on Desktop) -->
+    <div class="flex flex-col lg:flex-row flex-1 overflow-hidden relative z-10 w-full">
         
         <!-- Sidebar (Vehicle List) -->
-        <aside class="w-full md:w-64 border-b md:border-b-0 md:border-r border-cyan-800 bg-black/40 flex flex-col p-3 md:p-4 gap-2 md:gap-4 shrink-0 overflow-hidden">
-            <div class="text-[10px] md:text-xs text-cyan-600 sys-font border-b border-cyan-800/50 pb-1 md:pb-2 flex-shrink-0">TARGET SELECT</div>
-            <div id="vehicle-list" class="flex flex-row md:flex-col gap-2 md:gap-3 overflow-x-auto md:overflow-y-auto pb-2 md:pb-0 flex-1">
+        <!-- モバイルでは上部に横スクロールで配置、PCでは左に縦スクロール -->
+        <aside class="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-cyan-800 bg-black/40 flex flex-col p-2 lg:p-4 gap-2 shrink-0">
+            <div class="text-[10px] lg:text-xs text-cyan-600 sys-font border-b border-cyan-800/50 pb-1 lg:pb-2">TARGET SELECT</div>
+            <div id="vehicle-list" class="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto pb-1 lg:pb-0">
                 <!-- Vehicle items injected here -->
             </div>
         </aside>
 
         <!-- Main Dashboard -->
-        <main class="flex-1 p-3 md:p-6 overflow-y-auto w-full">
-            <div id="dashboard-content" class="max-w-6xl mx-auto hidden flex-col gap-4 md:gap-6 pb-20 md:pb-6">
+        <main class="flex-1 p-3 lg:p-6 overflow-y-auto w-full">
+            <div id="dashboard-content" class="max-w-6xl mx-auto hidden flex-col gap-4 lg:gap-6 pb-10">
                 
                 <!-- Top Section: Vehicle Info & Shakensho -->
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
+                <!-- モバイルでは縦1列、PCでは3列 -->
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
                     
                     <!-- Vehicle Identity -->
-                    <div class="hud-panel p-4 md:p-5 xl:col-span-1">
+                    <div class="hud-panel p-4 xl:col-span-1">
                         <div class="flex justify-between items-start mb-4">
-                            <h2 class="sys-font text-neon-cyan text-base md:text-lg"><i class="fas fa-car mr-2"></i>IDENTITY</h2>
-                            <div class="flex gap-4">
-                                <button onclick="editCurrentVehicle()" class="text-cyan-700 hover:text-cyan-300 transition-colors" title="EDIT DATA"><i class="fas fa-edit"></i></button>
-                                <button onclick="confirmDeleteVehicle()" class="text-red-900 hover:text-neon-red transition-colors" title="DELETE TARGET"><i class="fas fa-trash-alt"></i></button>
+                            <h2 class="sys-font text-neon-cyan text-sm lg:text-lg"><i class="fas fa-car mr-2"></i>IDENTITY</h2>
+                            <div class="flex gap-3">
+                                <button onclick="editCurrentVehicle()" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-edit"></i></button>
+                                <button onclick="confirmDeleteVehicle()" class="text-red-900 hover:text-neon-red"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         </div>
                         <div class="flex flex-col items-center mb-4">
-                            <div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-cyan-600 p-1 mb-3 relative overflow-hidden group cursor-pointer shrink-0" onclick="document.getElementById('image-upload').click()" title="UPLOAD IMAGE">
-                                <div class="absolute inset-0 bg-cyan-900/30 group-hover:bg-cyan-500/30 transition-colors z-10 flex items-center justify-center">
-                                    <i class="fas fa-camera text-white opacity-0 group-hover:opacity-100 transition-opacity text-xl md:text-2xl drop-shadow-md"></i>
+                            <div class="w-20 h-20 lg:w-32 lg:h-32 rounded-full border-2 border-cyan-600 p-1 mb-2 lg:mb-3 relative overflow-hidden group cursor-pointer" onclick="document.getElementById('image-upload').click()">
+                                <div class="absolute inset-0 bg-cyan-900/30 group-hover:bg-cyan-500/30 flex items-center justify-center z-10">
+                                    <i class="fas fa-camera text-white opacity-50 group-hover:opacity-100 text-lg lg:text-2xl"></i>
                                 </div>
                                 <div id="v-image-container" class="w-full h-full bg-black rounded-full flex items-center justify-center overflow-hidden">
-                                     <i class="fas fa-car-side text-4xl md:text-6xl text-cyan-800"></i>
+                                     <i class="fas fa-car-side text-4xl lg:text-6xl text-cyan-800"></i>
                                 </div>
                             </div>
-                            <div class="text-xl md:text-2xl font-bold text-white tracking-wider text-center" id="v-name">--</div>
-                            <div class="text-xs md:text-sm text-cyan-500 mt-1 sys-font text-center break-all" id="v-plate">--</div>
+                            <div class="text-lg lg:text-2xl font-bold text-white text-center break-all" id="v-name">--</div>
+                            <div class="text-xs text-cyan-500 mt-1 sys-font text-center" id="v-plate">--</div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-[10px] md:text-xs border-t border-cyan-800/50 pt-3 md:pt-4">
+                        <div class="grid grid-cols-2 gap-2 text-[10px] lg:text-xs border-t border-cyan-800/50 pt-3">
                             <div class="text-cyan-600">MAKER</div>
                             <div class="text-right text-cyan-100 truncate" id="v-maker">--</div>
                             <div class="text-cyan-600">MODEL YR</div>
@@ -240,32 +245,33 @@
                         </div>
                     </div>
 
-                    <!-- Shakensho (Inspection Certificate) -->
-                    <div class="hud-panel p-4 md:p-5 xl:col-span-2 flex flex-col">
-                        <div class="flex justify-between items-start mb-3 md:mb-4 border-b border-cyan-800/50 pb-2">
-                            <h2 class="sys-font text-neon-cyan text-base md:text-lg"><i class="fas fa-file-invoice mr-2"></i>CERTIFICATE (車検証)</h2>
-                            <button onclick="openUpdateModal('shakensho')" class="text-[10px] md:text-xs text-cyan-400 border border-cyan-700 px-2 py-1 hover:bg-cyan-900/50">UPDATE DATA</button>
+                    <!-- Shakensho -->
+                    <div class="hud-panel p-4 xl:col-span-2 flex flex-col">
+                        <div class="flex justify-between items-start mb-3 border-b border-cyan-800/50 pb-2">
+                            <h2 class="sys-font text-neon-cyan text-sm lg:text-lg"><i class="fas fa-file-invoice mr-2"></i>CERTIFICATE</h2>
+                            <button onclick="openUpdateModal('shakensho')" class="text-[10px] lg:text-xs text-cyan-400 border border-cyan-700 px-2 py-1 hover:bg-cyan-900/50">UPDATE DATA</button>
                         </div>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-                            <div class="flex flex-col justify-center gap-3 md:gap-4">
+                        <!-- モバイルでは縦1列、タブレット以上で2列 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+                            <div class="flex flex-col gap-3">
                                 <div>
                                     <div class="text-[10px] text-cyan-600 sys-font mb-1">DOCUMENT ID (登録番号)</div>
-                                    <div class="text-base md:text-lg font-mono text-cyan-200 tracking-widest bg-black/50 p-2 border border-cyan-900 break-all" id="s-id">--</div>
+                                    <div class="text-sm lg:text-lg font-mono text-cyan-200 bg-black/50 p-2 border border-cyan-900 break-all" id="s-id">--</div>
                                 </div>
                                 <div>
                                     <div class="text-[10px] text-cyan-600 sys-font mb-1">OWNER (所有者)</div>
-                                    <div class="text-sm md:text-md text-cyan-100 break-all" id="s-owner">--</div>
+                                    <div class="text-xs lg:text-md text-cyan-100 break-all" id="s-owner">--</div>
                                 </div>
                             </div>
-                            <div class="flex flex-col justify-center gap-3 md:gap-4">
+                            <div class="flex flex-col gap-3 justify-end">
                                 <div>
-                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">ISSUE DATE (交付年月日)</div>
-                                    <div class="text-sm md:text-md sys-font text-cyan-100" id="s-issue">--</div>
+                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">ISSUE DATE (交付日)</div>
+                                    <div class="text-xs lg:text-md sys-font text-cyan-100" id="s-issue">--</div>
                                 </div>
-                                <div class="bg-cyan-900/20 p-3 border border-cyan-700/50">
-                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">EXPIRY DATE (有効期間の満了日)</div>
-                                    <div class="text-lg md:text-xl sys-font text-neon-cyan font-bold" id="s-expire">--</div>
+                                <div class="bg-cyan-900/20 p-2 lg:p-3 border border-cyan-700/50">
+                                    <div class="text-[10px] text-cyan-600 sys-font mb-1">EXPIRY DATE (車検満了日)</div>
+                                    <div class="text-base lg:text-xl sys-font text-neon-cyan font-bold" id="s-expire">--</div>
                                 </div>
                             </div>
                         </div>
@@ -273,28 +279,29 @@
                 </div>
 
                 <!-- Maintenance Modules -->
-                <div>
-                    <div class="flex justify-between items-end md:items-center mb-3 md:mb-4 border-l-2 border-cyan-500 pl-2">
-                        <h2 class="sys-font text-cyan-500 text-xs md:text-sm tracking-widest leading-none">MAINTENANCE MODULES</h2>
-                        <button onclick="openAiDiagnostics()" class="hud-panel px-3 md:px-4 py-1.5 md:py-2 text-neon-yellow hover:bg-yellow-900/30 transition-colors sys-font text-[10px] md:text-xs flex items-center gap-2 border-yellow-500/50 cursor-pointer shadow-[0_0_10px_rgba(255,255,0,0.2)] shrink-0">
-                            <i class="fas fa-brain animate-pulse"></i> <span class="hidden sm:inline">AI SYS-CHECK ✨</span><span class="sm:hidden">AI CHECK</span>
+                <div class="mt-2">
+                    <div class="flex justify-between items-center mb-3 border-l-2 border-cyan-500 pl-2">
+                        <h2 class="sys-font text-cyan-500 text-xs lg:text-sm tracking-widest">MAINTENANCE</h2>
+                        <button onclick="openAiDiagnostics()" class="hud-panel px-3 py-1 lg:px-4 lg:py-2 text-neon-yellow hover:bg-yellow-900/30 transition-colors sys-font text-[10px] lg:text-xs flex items-center gap-2 border-yellow-500/50">
+                            <i class="fas fa-brain animate-pulse"></i> <span>AI CHECK ✨</span>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                    <!-- モバイル: 1列, タブレット: 2列, PC: 4列 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                         
-                        <!-- Shaken (Inspection) -->
-                        <div class="hud-panel p-3 md:p-4 flex flex-col relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                                <i class="fas fa-clipboard-check text-7xl md:text-9xl"></i>
+                        <!-- Shaken -->
+                        <div class="hud-panel p-3 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-2 -top-2 opacity-5 pointer-events-none">
+                                <i class="fas fa-clipboard-check text-7xl"></i>
                             </div>
                             <div class="flex justify-between items-center mb-2 z-10">
-                                <div class="sys-font text-xs md:text-sm text-cyan-300"><i class="fas fa-clipboard-check mr-2"></i>INSPECTION</div>
+                                <div class="sys-font text-[10px] lg:text-sm text-cyan-300"><i class="fas fa-clipboard-check mr-1"></i>INSPECTION</div>
                                 <button onclick="openUpdateModal('shaken')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
-                            <div class="text-[10px] text-gray-400 mb-1 z-10">車検満了日</div>
-                            <div class="text-xl md:text-2xl sys-font mb-2 z-10" id="m-shaken-date">--</div>
+                            <div class="text-[8px] text-gray-400 mb-1 z-10">車検満了日</div>
+                            <div class="text-lg lg:text-2xl sys-font mb-2 z-10" id="m-shaken-date">--</div>
                             <div class="mt-auto z-10">
-                                <div class="flex justify-between text-[10px] md:text-xs sys-font mb-1">
+                                <div class="flex justify-between text-[8px] lg:text-xs sys-font mb-1">
                                     <span id="m-shaken-status-text">STATUS</span>
                                     <span id="m-shaken-days">-- DAYS</span>
                                 </div>
@@ -303,19 +310,19 @@
                         </div>
 
                         <!-- Oil Change -->
-                        <div class="hud-panel p-3 md:p-4 flex flex-col relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                                <i class="fas fa-oil-can text-7xl md:text-9xl"></i>
+                        <div class="hud-panel p-3 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-2 -top-2 opacity-5 pointer-events-none">
+                                <i class="fas fa-oil-can text-7xl"></i>
                             </div>
                             <div class="flex justify-between items-center mb-2 z-10">
-                                <div class="sys-font text-xs md:text-sm text-cyan-300"><i class="fas fa-oil-can mr-2"></i>ENGINE OIL</div>
+                                <div class="sys-font text-[10px] lg:text-sm text-cyan-300"><i class="fas fa-oil-can mr-1"></i>ENGINE OIL</div>
                                 <button onclick="openUpdateModal('oil')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
-                            <div class="text-[8px] md:text-[10px] text-cyan-600 mb-1 z-10 sys-font truncate" id="m-oil-last">LAST: -- ( -- km )</div>
-                            <div class="text-[10px] text-gray-400 mb-1 z-10">次回交換予定日</div>
-                            <div class="text-xl md:text-2xl sys-font mb-2 z-10" id="m-oil-date">--</div>
+                            <div class="text-[8px] text-cyan-600 mb-1 z-10 sys-font truncate" id="m-oil-last">LAST: --</div>
+                            <div class="text-[8px] text-gray-400 mb-1 z-10">次回交換予定日</div>
+                            <div class="text-lg lg:text-2xl sys-font mb-2 z-10" id="m-oil-date">--</div>
                             <div class="mt-auto z-10">
-                                <div class="flex justify-between text-[10px] md:text-xs sys-font mb-1">
+                                <div class="flex justify-between text-[8px] lg:text-xs sys-font mb-1">
                                     <span id="m-oil-status-text">STATUS</span>
                                     <span id="m-oil-days">-- DAYS</span>
                                 </div>
@@ -324,18 +331,18 @@
                         </div>
 
                         <!-- Tires -->
-                        <div class="hud-panel p-3 md:p-4 flex flex-col relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                                <i class="fas fa-dharmachakra text-7xl md:text-9xl"></i>
+                        <div class="hud-panel p-3 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-2 -top-2 opacity-5 pointer-events-none">
+                                <i class="fas fa-dharmachakra text-7xl"></i>
                             </div>
                             <div class="flex justify-between items-center mb-2 z-10">
-                                <div class="sys-font text-xs md:text-sm text-cyan-300"><i class="fas fa-dharmachakra mr-2"></i>TIRE CHANGE</div>
+                                <div class="sys-font text-[10px] lg:text-sm text-cyan-300"><i class="fas fa-dharmachakra mr-1"></i>TIRE CHANGE</div>
                                 <button onclick="openUpdateModal('tires')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
-                            <div class="text-[10px] text-gray-400 mb-1 z-10">次回交換/ローテ</div>
-                            <div class="text-xl md:text-2xl sys-font mb-2 z-10" id="m-tires-date">--</div>
+                            <div class="text-[8px] text-gray-400 mb-1 z-10">次回交換/ローテ</div>
+                            <div class="text-lg lg:text-2xl sys-font mb-2 z-10" id="m-tires-date">--</div>
                             <div class="mt-auto z-10">
-                                <div class="flex justify-between text-[10px] md:text-xs sys-font mb-1">
+                                <div class="flex justify-between text-[8px] lg:text-xs sys-font mb-1">
                                     <span id="m-tires-status-text">STATUS</span>
                                     <span id="m-tires-days">-- DAYS</span>
                                 </div>
@@ -344,18 +351,19 @@
                         </div>
 
                         <!-- Insurance -->
-                        <div class="hud-panel p-3 md:p-4 flex flex-col relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                                <i class="fas fa-shield-alt text-7xl md:text-9xl"></i>
+                        <div class="hud-panel p-3 flex flex-col relative overflow-hidden group">
+                            <div class="absolute -right-2 -top-2 opacity-5 pointer-events-none">
+                                <i class="fas fa-shield-alt text-7xl"></i>
                             </div>
                             <div class="flex justify-between items-center mb-2 z-10">
-                                <div class="sys-font text-xs md:text-sm text-cyan-300"><i class="fas fa-shield-alt mr-2"></i>INSURANCE</div>
+                                <div class="sys-font text-[10px] lg:text-sm text-cyan-300"><i class="fas fa-shield-alt mr-1"></i>INSURANCE</div>
                                 <button onclick="openUpdateModal('insurance')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
-                            <div class="text-[10px] text-gray-400 mb-1 z-10">任意保険更新日</div>
-                            <div class="text-xl md:text-2xl sys-font mb-2 z-10" id="m-ins-date">--</div>
+                            <div class="text-[8px] text-cyan-600 mb-1 z-10 sys-font truncate" id="m-ins-detail">--</div>
+                            <div class="text-[8px] text-gray-400 mb-1 z-10">任意保険更新日</div>
+                            <div class="text-lg lg:text-2xl sys-font mb-2 z-10" id="m-ins-date">--</div>
                             <div class="mt-auto z-10">
-                                <div class="flex justify-between text-[10px] md:text-xs sys-font mb-1">
+                                <div class="flex justify-between text-[8px] lg:text-xs sys-font mb-1">
                                     <span id="m-ins-status-text">STATUS</span>
                                     <span id="m-ins-days">-- DAYS</span>
                                 </div>
@@ -369,42 +377,42 @@
             
             <!-- Empty State -->
             <div id="empty-state" class="h-full flex flex-col items-center justify-center text-cyan-800 p-4 text-center">
-                <i class="fas fa-car-crash text-4xl md:text-6xl mb-4 opacity-50"></i>
-                <div class="sys-font tracking-widest text-base md:text-lg opacity-50">NO VEHICLE SELECTED</div>
-                <div class="text-xs md:text-sm mt-2 opacity-50">ターゲット車両を選択、または新規登録してください。</div>
+                <i class="fas fa-car-crash text-4xl lg:text-6xl mb-4 opacity-50"></i>
+                <div class="sys-font tracking-widest text-base lg:text-lg opacity-50">NO VEHICLE SELECTED</div>
+                <div class="text-[10px] lg:text-sm mt-2 opacity-50">ターゲット車両を選択、または新規登録してください。</div>
             </div>
         </main>
     </div>
 
     <!-- Universal Update Modal -->
-    <div id="update-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
-        <div class="hud-panel w-full max-w-md p-5 md:p-6 max-h-[90vh] overflow-y-auto">
-            <h3 class="sys-font text-neon-cyan text-base md:text-lg mb-4 border-b border-cyan-800 pb-2" id="modal-title">UPDATE SYSTEM</h3>
+    <div id="update-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-3 lg:p-4">
+        <div class="hud-panel w-full max-w-md p-4 lg:p-6 max-h-[90vh] overflow-y-auto">
+            <h3 class="sys-font text-neon-cyan text-sm lg:text-lg mb-4 border-b border-cyan-800 pb-2" id="modal-title">UPDATE SYSTEM</h3>
             
-            <form id="update-form" class="flex flex-col gap-3 md:gap-4">
+            <form id="update-form" class="flex flex-col gap-3">
                 <input type="hidden" id="modal-target-type">
                 
-                <div id="modal-fields" class="flex flex-col gap-2 md:gap-3">
+                <div id="modal-fields" class="flex flex-col gap-2">
                     <!-- Fields injected dynamically -->
                 </div>
 
-                <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-cyan-800">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-[10px] md:text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors">CANCEL</button>
-                    <button type="submit" class="px-6 py-2 text-[10px] md:text-xs sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white transition-all">EXECUTE</button>
+                <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-cyan-800">
+                    <button type="button" onclick="closeModal()" class="px-3 py-2 text-[10px] lg:text-xs sys-font text-cyan-600 hover:text-cyan-300">CANCEL</button>
+                    <button type="submit" class="px-4 py-2 text-[10px] lg:text-xs sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white">EXECUTE</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- AI Diagnostics Terminal Modal -->
-    <div id="ai-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
-        <div class="hud-panel w-full max-w-2xl p-4 md:p-6 border-neon-yellow shadow-[0_0_20px_rgba(255,255,0,0.15)] flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center mb-3 md:mb-4 border-b border-yellow-800 pb-2">
-                <h3 class="sys-font text-neon-yellow text-sm md:text-lg"><i class="fas fa-microchip mr-2 animate-pulse"></i>AI DIAGNOSTICS CORE ✨</h3>
-                <button onclick="closeAiModal()" class="text-yellow-700 hover:text-neon-yellow transition-colors"><i class="fas fa-times text-lg md:text-xl"></i></button>
+    <div id="ai-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-3 lg:p-4">
+        <div class="hud-panel w-full max-w-2xl p-4 lg:p-6 border-neon-yellow shadow-[0_0_20px_rgba(255,255,0,0.15)] flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-3 border-b border-yellow-800 pb-2 shrink-0">
+                <h3 class="sys-font text-neon-yellow text-xs lg:text-lg"><i class="fas fa-microchip mr-2 animate-pulse"></i>AI DIAGNOSTICS</h3>
+                <button onclick="closeAiModal()" class="text-yellow-700 hover:text-neon-yellow"><i class="fas fa-times text-lg"></i></button>
             </div>
-            <div class="flex-1 overflow-y-auto p-3 md:p-4 bg-black/60 border border-yellow-900/50 rounded">
-                <div id="ai-content" class="text-xs md:text-sm leading-relaxed font-mono">
+            <div class="flex-1 overflow-y-auto p-3 bg-black/60 border border-yellow-900/50 rounded">
+                <div id="ai-content" class="text-[10px] lg:text-sm leading-relaxed font-mono break-words">
                     <!-- AI response injected here -->
                 </div>
             </div>
@@ -412,32 +420,32 @@
     </div>
 
     <!-- Auth Modal -->
-    <div id="auth-modal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
-        <div class="hud-panel w-full max-w-sm p-5 md:p-6">
-            <h3 class="sys-font text-neon-cyan text-base md:text-lg mb-4 border-b border-cyan-800 pb-2">SYSTEM AUTHENTICATION</h3>
-            <form id="auth-form" class="flex flex-col gap-3 md:gap-4">
+    <div id="auth-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-3">
+        <div class="hud-panel w-full max-w-sm p-4 lg:p-6">
+            <h3 class="sys-font text-neon-cyan text-sm lg:text-lg mb-3 border-b border-cyan-800 pb-2">AUTHENTICATION</h3>
+            <form id="auth-form" class="flex flex-col gap-3">
                 <div>
-                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">EMAIL</div>
-                    <input type="email" id="auth-email" required placeholder="user@sys-com.net">
+                    <div class="text-[10px] text-cyan-500 mb-1">EMAIL</div>
+                    <input type="email" id="auth-email" required placeholder="user@sys-com.net" class="text-xs lg:text-sm p-2">
                 </div>
                 <div>
-                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">PASSWORD</div>
-                    <input type="password" id="auth-pass" required placeholder="••••••••" minlength="6">
+                    <div class="text-[10px] text-cyan-500 mb-1">PASSWORD</div>
+                    <input type="password" id="auth-pass" required placeholder="••••••••" minlength="6" class="text-xs lg:text-sm p-2">
                 </div>
                 <div id="auth-error" class="text-neon-red text-[10px] hidden break-words"></div>
-                <div class="flex flex-col sm:flex-row justify-between gap-3 mt-2 pt-4 border-t border-cyan-800">
-                    <button type="button" onclick="closeAuthModal()" class="px-3 py-2 text-[10px] md:text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors w-full sm:w-auto order-last sm:order-first">CANCEL</button>
-                    <div class="flex gap-2 w-full sm:w-auto">
-                        <button type="button" onclick="handleAuth('register')" class="flex-1 sm:flex-none px-3 py-2 text-[10px] md:text-xs sys-font text-cyan-400 border border-cyan-700 hover:bg-cyan-900/50 transition-all">REGISTER</button>
-                        <button type="button" onclick="handleAuth('login')" class="flex-1 sm:flex-none px-4 py-2 text-[10px] md:text-xs sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white transition-all">LOGIN</button>
+                <div class="flex flex-col lg:flex-row justify-between gap-2 mt-2 pt-3 border-t border-cyan-800">
+                    <button type="button" onclick="closeAuthModal()" class="px-3 py-2 text-[10px] sys-font text-cyan-600 hover:text-cyan-300 order-last lg:order-first border border-transparent">CANCEL</button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="handleAuth('register')" class="flex-1 px-3 py-2 text-[10px] sys-font text-cyan-400 border border-cyan-700 hover:bg-cyan-900/50">REGISTER</button>
+                        <button type="button" onclick="handleAuth('login')" class="flex-1 px-4 py-2 text-[10px] sys-font bg-cyan-900/50 text-neon-cyan border border-cyan-500 hover:bg-cyan-600 hover:text-white">LOGIN</button>
                     </div>
                 </div>
             </form>
-            <div id="logout-section" class="hidden flex-col gap-4 mt-2">
-                <div class="text-xs md:text-sm text-cyan-300 text-center">CURRENTLY LOGGED IN</div>
-                <div class="text-center text-neon-cyan text-base md:text-lg sys-font mb-2 break-all" id="logged-in-email">--</div>
-                <button type="button" onclick="handleLogout()" class="w-full px-4 py-2 text-[10px] md:text-xs sys-font bg-red-900/30 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white transition-all">LOGOUT & RETURN TO GUEST</button>
-                <button type="button" onclick="closeAuthModal()" class="mt-2 px-3 py-2 text-[10px] md:text-xs sys-font text-cyan-600 hover:text-cyan-300 transition-colors w-full text-center">CLOSE</button>
+            <div id="logout-section" class="hidden flex-col gap-3 mt-2">
+                <div class="text-[10px] text-cyan-300 text-center">CURRENTLY LOGGED IN</div>
+                <div class="text-center text-neon-cyan text-sm lg:text-lg sys-font mb-2 break-all" id="logged-in-email">--</div>
+                <button type="button" onclick="handleLogout()" class="w-full px-4 py-2 text-[10px] sys-font bg-red-900/30 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white">LOGOUT & RETURN TO GUEST</button>
+                <button type="button" onclick="closeAuthModal()" class="mt-2 px-3 py-2 text-[10px] sys-font text-cyan-600 hover:text-cyan-300 w-full text-center">CLOSE</button>
             </div>
         </div>
     </div>
@@ -445,6 +453,7 @@
     <!-- Hidden File Input for Image Upload -->
     <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
     <input type="file" id="shakensho-scan" accept="image/*" class="hidden" onchange="handleShakenshoScan(event)">
+    <input type="file" id="insurance-scan" accept="image/*" class="hidden" onchange="handleInsuranceScan(event)">
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -464,7 +473,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        // プレビュー環境での必須ルールに従うための厳密なパス構成
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'vehicle-maint-app-v1'; 
         
         let userId = null;
@@ -479,15 +487,15 @@
 
             const alertHtml = `
                 <div id="system-alert" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center p-4">
-                    <div class="hud-panel w-full max-w-lg p-5 md:p-6 border-neon-red shadow-[0_0_20px_rgba(255,0,0,0.3)]">
-                        <h3 class="sys-font text-neon-red text-base md:text-lg mb-4 border-b border-red-800 pb-2">
+                    <div class="hud-panel w-full max-w-lg p-5 border-neon-red shadow-[0_0_20px_rgba(255,0,0,0.3)]">
+                        <h3 class="sys-font text-neon-red text-sm lg:text-lg mb-3 border-b border-red-800 pb-2">
                             <i class="fas fa-exclamation-triangle mr-2 animate-pulse"></i>${title}
                         </h3>
-                        <div class="text-xs md:text-sm text-cyan-100 mb-6 leading-relaxed">
+                        <div class="text-[10px] lg:text-sm text-cyan-100 mb-4 leading-relaxed break-words">
                             ${message}
                         </div>
                         <div class="text-right">
-                            <button onclick="document.getElementById('system-alert').remove()" class="px-5 py-2 text-[10px] md:text-xs sys-font bg-red-900/50 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white transition-all">ACKNOWLEDGE</button>
+                            <button onclick="document.getElementById('system-alert').remove()" class="px-4 py-2 text-[10px] lg:text-xs sys-font bg-red-900/50 text-neon-red border border-red-500 hover:bg-red-600 hover:text-white transition-all">ACKNOWLEDGE</button>
                         </div>
                     </div>
                 </div>
@@ -510,7 +518,6 @@
                     try {
                         await signInWithCustomToken(auth, __initial_auth_token);
                     } catch (tokenError) {
-                        console.warn("Token mismatch. Falling back to anonymous auth.");
                         await signInAnonymously(auth);
                     }
                 } else {
@@ -523,18 +530,9 @@
                     statusEl.innerText = 'AUTH FAILED';
                     statusEl.className = 'text-neon-red';
                 }
-                if (error.code === 'auth/operation-not-allowed') {
-                    window.showSystemAlert('ANONYMOUS AUTH DISABLED', 
-                        `Firebaseの「匿名ログイン」が無効になっています。<br><br>
-                        1. Firebase Consoleを開く<br>
-                        2. 「Authentication」>「Sign-in method」を選択<br>
-                        3. 「匿名」を「有効」にして保存してください。`
-                    );
-                }
             }
         };
 
-        // Initialize Authentication flow
         initAuth();
 
         onAuthStateChanged(auth, (user) => {
@@ -545,13 +543,10 @@
                 
                 if (user.isAnonymous) {
                     if(displayEl) displayEl.innerText = 'GUEST';
-                    if(statusEl) statusEl.innerText = 'SYNC ACTIVE (GUEST)';
+                    if(statusEl) statusEl.innerText = 'SYNC (GUEST)';
                 } else if (user.email) {
                     if(displayEl) displayEl.innerText = user.email.split('@')[0].toUpperCase();
-                    if(statusEl) statusEl.innerText = 'SYNC ACTIVE (USER)';
-                } else {
-                    if(displayEl) displayEl.innerText = 'ADMIN';
-                    if(statusEl) statusEl.innerText = 'SYNC ACTIVE (SYS)';
+                    if(statusEl) statusEl.innerText = 'SYNC (USER)';
                 }
                 if(statusEl) statusEl.className = 'text-neon-cyan';
                 
@@ -572,9 +567,7 @@
                     vehicles.push({ id: doc.id, ...doc.data() });
                 });
                 
-                // Sort by ID to keep order consistent
                 vehicles.sort((a, b) => a.id.localeCompare(b.id));
-
                 renderSidebar();
                 
                 if (vehicles.length === 0) {
@@ -583,7 +576,6 @@
                     document.getElementById('dashboard-content').classList.remove('flex');
                     document.getElementById('empty-state').classList.remove('hidden');
                 } else {
-                    // Maintain current selection or select first
                     if (!currentVehicleId || !vehicles.find(v => v.id === currentVehicleId)) {
                         selectVehicle(vehicles[0].id);
                     } else {
@@ -592,29 +584,6 @@
                 }
             }, (error) => {
                 console.error("DB Sync Error:", error);
-                const statusEl = document.getElementById('auth-status');
-                
-                if (error.message && error.message.includes('permission')) {
-                    if(statusEl) statusEl.innerText = 'DB PERMISSION DENIED (CHECK RULES)';
-                    window.showSystemAlert('DATABASE PERMISSION ERROR', 
-                        `Firestoreのセキュリティルールによりアクセスが拒否されています。<br><br>
-                        1. Firebase Consoleの「Firestore Database」を開く<br>
-                        2. 「ルール」タブを選択<br>
-                        3. 以下のコードに書き換えて「公開」を押してください。<br>
-                        <pre class="bg-black/80 p-3 mt-3 text-[10px] text-neon-green border border-cyan-800 select-all overflow-x-auto whitespace-pre-wrap">
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}</pre>`
-                    );
-                } else {
-                    if(statusEl) statusEl.innerText = 'SYNC ERROR';
-                }
-                if(statusEl) statusEl.className = 'text-neon-red';
             });
         }
 
@@ -625,12 +594,12 @@ service cloud.firestore {
             vehicles.forEach(v => {
                 const isActive = v.id === currentVehicleId;
                 const btn = document.createElement('button');
-                // モバイル時は横並び（min-w）、PC時は縦並び
-                btn.className = `shrink-0 min-w-[120px] md:min-w-0 w-auto md:w-full text-left p-2 md:p-3 border-b-4 md:border-b-0 md:border-l-4 transition-all ${isActive ? 'bg-cyan-900/40 border-neon-cyan text-white' : 'border-transparent text-cyan-600 hover:bg-cyan-900/20 hover:border-cyan-700'}`;
+                // スマホ：横並び（min-w） PC：縦並び
+                btn.className = `shrink-0 w-32 lg:w-full text-left p-2 border-b-2 lg:border-b-0 lg:border-l-4 transition-all ${isActive ? 'bg-cyan-900/40 border-neon-cyan text-white' : 'border-transparent text-cyan-600 hover:bg-cyan-900/20 hover:border-cyan-700'}`;
                 btn.onclick = () => selectVehicle(v.id);
                 btn.innerHTML = `
-                    <div class="font-bold tracking-wide text-[10px] md:text-sm truncate">${v.name}</div>
-                    <div class="text-[8px] md:text-[10px] sys-font mt-0.5 md:mt-1 opacity-70 truncate">${v.plate}</div>
+                    <div class="font-bold tracking-wide text-[10px] lg:text-sm truncate">${v.name}</div>
+                    <div class="text-[8px] lg:text-[10px] sys-font mt-1 opacity-70 truncate">${v.plate}</div>
                 `;
                 list.appendChild(btn);
             });
@@ -646,7 +615,6 @@ service cloud.firestore {
             document.getElementById('dashboard-content').classList.remove('hidden');
             document.getElementById('dashboard-content').classList.add('flex');
 
-            // Populate Info
             document.getElementById('v-name').innerText = v.name;
             document.getElementById('v-plate').innerText = v.plate;
             document.getElementById('v-maker').innerText = v.maker || '--';
@@ -656,25 +624,29 @@ service cloud.firestore {
             if (v.image) {
                 imgContainer.innerHTML = `<img src="${v.image}" class="w-full h-full object-cover" alt="${v.name}">`;
             } else {
-                imgContainer.innerHTML = `<i class="fas fa-car-side text-4xl md:text-6xl text-cyan-800"></i>`;
+                imgContainer.innerHTML = `<i class="fas fa-car-side text-4xl lg:text-6xl text-cyan-800"></i>`;
             }
 
-            // Populate Shakensho
             document.getElementById('s-id').innerText = v.shakensho.id || '--';
             document.getElementById('s-owner').innerText = v.owner || '--';
             document.getElementById('s-issue').innerText = v.shakensho.issue || '--';
             document.getElementById('s-expire').innerText = v.shakensho.expire || '--';
 
             // Populate Oil Last Change Data
-            const oilLastDate = v.maintenance.oil_last_date || '----/--/--';
-            const oilLastKm = v.maintenance.oil_last_km ? Number(v.maintenance.oil_last_km).toLocaleString() + ' km' : '-- km';
+            const oilLastDate = v.maintenance?.oil_last_date || '----/--/--';
+            const oilLastKm = v.maintenance?.oil_last_km ? Number(v.maintenance.oil_last_km).toLocaleString() + ' km' : '-- km';
             document.getElementById('m-oil-last').innerText = `LAST: ${oilLastDate} ( ${oilLastKm} )`;
 
+            // Populate Insurance Detail
+            const insDetail = v.insurance_detail || { company: '', policy_number: '' };
+            const insText = insDetail.company ? `${insDetail.company} / ${insDetail.policy_number || '番号不明'}` : 'COMPANY UNREGISTERED';
+            document.getElementById('m-ins-detail').innerText = insText;
+
             // Calculate & Render Maintenance Modules
-            renderMaintenanceModule('shaken', v.maintenance.shaken, 730);
-            renderMaintenanceModule('oil', v.maintenance.oil, 180);
-            renderMaintenanceModule('tires', v.maintenance.tires, 365);
-            renderMaintenanceModule('ins', v.maintenance.insurance, 365);
+            renderMaintenanceModule('shaken', v.maintenance?.shaken, 730);
+            renderMaintenanceModule('oil', v.maintenance?.oil, 180);
+            renderMaintenanceModule('tires', v.maintenance?.tires, 365);
+            renderMaintenanceModule('ins', v.maintenance?.insurance, 365);
         }
 
         function renderMaintenanceModule(type, targetDateStr, baseDaysCycle) {
@@ -691,7 +663,7 @@ service cloud.firestore {
             const diffTime = targetDate - today;
             const diffDays = isNaN(diffTime) ? 0 : Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            elDays.innerText = isNaN(diffTime) ? '-- DAYS' : (diffDays >= 0 ? `${diffDays} DAYS LEFT` : `${Math.abs(diffDays)} DAYS OVER`);
+            elDays.innerText = isNaN(diffTime) ? '-- DAYS' : (diffDays >= 0 ? `${diffDays} DAYS LEFT` : `${Math.abs(diffDays)} OVER`);
 
             let percentage = (diffDays / baseDaysCycle) * 100;
             if (isNaN(percentage)) percentage = 0;
@@ -700,7 +672,7 @@ service cloud.firestore {
 
             elBar.style.width = `${percentage}%`;
 
-            elDate.className = 'text-xl md:text-2xl sys-font mb-2 z-10';
+            elDate.className = 'text-lg lg:text-2xl sys-font mb-2 z-10';
             elStatus.className = 'sys-font mb-1';
             elBar.className = 'status-bar-fill';
 
@@ -745,13 +717,13 @@ service cloud.firestore {
         }
 
         window.openAuthModal = () => {
-            const modal = document.getElementById('auth-modal');
+            const m = document.getElementById('auth-modal');
             const form = document.getElementById('auth-form');
             const logoutSec = document.getElementById('logout-section');
             const errEl = document.getElementById('auth-error');
             
             errEl.classList.add('hidden');
-            modal.classList.remove('hidden');
+            m.classList.remove('hidden');
             
             const user = auth.currentUser;
             if (user && !user.isAnonymous && user.email) {
@@ -795,26 +767,14 @@ service cloud.firestore {
                 } else if (action === 'register') {
                     await createUserWithEmailAndPassword(auth, email, pass);
                 }
-                // Clear input
                 document.getElementById('auth-email').value = '';
                 document.getElementById('auth-pass').value = '';
                 window.closeAuthModal();
             } catch (error) {
-                console.error("Auth Error:", error);
                 let msg = error.message;
                 if (error.code === 'auth/weak-password') msg = 'PASSWORD MUST BE AT LEAST 6 CHARACTERS.';
                 else if (error.code === 'auth/email-already-in-use') msg = 'EMAIL ALREADY REGISTERED.';
                 else if (error.code === 'auth/invalid-credential') msg = 'INVALID EMAIL OR PASSWORD.';
-                else if (error.code === 'auth/operation-not-allowed') {
-                    msg = 'EMAIL AUTH DISABLED. PLEASE ENABLE IN FIREBASE CONSOLE.';
-                    window.showSystemAlert('AUTHENTICATION ERROR', 
-                        `Firebaseの「メール/パスワード認証」が無効になっています。<br><br>
-                        1. Firebase Consoleを開く<br>
-                        2. 「Authentication」>「Sign-in method」を選択<br>
-                        3. 「メール/パスワード」を「有効」にして保存してください。`
-                    );
-                }
-                
                 errEl.innerText = "AUTH FAILED: " + msg;
                 errEl.classList.remove('hidden');
             }
@@ -823,7 +783,7 @@ service cloud.firestore {
         window.handleLogout = async () => {
             try {
                 await signOut(auth);
-                await signInAnonymously(auth); // ログアウト後はゲストモードに戻る
+                await signInAnonymously(auth);
                 window.closeAuthModal();
             } catch (error) {
                 console.error("Logout Error:", error);
@@ -835,35 +795,35 @@ service cloud.firestore {
             modalTargetType.value = "new_vehicle";
             modalFields.innerHTML = `
                 <div class="flex flex-col gap-2 mb-2 border-b border-cyan-800 pb-3">
-                    <button type="button" onclick="document.getElementById('shakensho-scan').click()" class="hud-panel w-full py-2 md:py-3 text-cyan-300 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-[10px] md:text-xs flex items-center justify-center gap-2 cursor-pointer border-cyan-500">
-                        <i class="fas fa-camera text-base md:text-lg"></i> SCAN CERTIFICATE (AUTO-FILL)
+                    <button type="button" onclick="document.getElementById('shakensho-scan').click()" class="hud-panel w-full py-2 lg:py-3 text-cyan-300 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-[10px] lg:text-xs flex items-center justify-center gap-2 border-cyan-500">
+                        <i class="fas fa-camera text-base lg:text-lg"></i> SCAN CERTIFICATE (AUTO-FILL)
                     </button>
-                    <div id="scan-status" class="text-center text-[8px] md:text-[10px] text-neon-yellow hidden animate-pulse">ANALYZING IMAGE DATA...</div>
+                    <div id="scan-status" class="text-center text-[8px] lg:text-[10px] text-neon-yellow hidden animate-pulse mt-1">ANALYZING IMAGE DATA...</div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div class="col-span-1">
-                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">VEHICLE NAME (通称名)</div>
-                        <input type="text" id="inp-name" required placeholder="e.g. PRIUS" class="text-xs md:text-sm">
+                        <div class="text-[8px] lg:text-[10px] text-cyan-500 mb-1">VEHICLE NAME (通称名)</div>
+                        <input type="text" id="inp-name" required placeholder="e.g. PRIUS" class="text-xs p-1.5 lg:p-2">
                     </div>
                     <div class="col-span-1">
-                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">NUMBER PLATE</div>
-                        <input type="text" id="inp-plate" required placeholder="e.g. 品川 500 あ 12-34" class="text-xs md:text-sm">
+                        <div class="text-[8px] lg:text-[10px] text-cyan-500 mb-1">NUMBER PLATE</div>
+                        <input type="text" id="inp-plate" required placeholder="e.g. 品川 500 あ 12-34" class="text-xs p-1.5 lg:p-2">
                     </div>
                     <div class="col-span-1">
-                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">MAKER (車名)</div>
-                        <input type="text" id="inp-maker" placeholder="e.g. TOYOTA" class="text-xs md:text-sm">
+                        <div class="text-[8px] lg:text-[10px] text-cyan-500 mb-1">MAKER (車名)</div>
+                        <input type="text" id="inp-maker" placeholder="e.g. TOYOTA" class="text-xs p-1.5 lg:p-2">
                     </div>
                     <div class="col-span-1">
-                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">DOCUMENT ID (車台番号)</div>
-                        <input type="text" id="inp-sid" placeholder="e.g. ZVW50-1234567" class="text-xs md:text-sm">
+                        <div class="text-[8px] lg:text-[10px] text-cyan-500 mb-1">DOCUMENT ID (車台番号)</div>
+                        <input type="text" id="inp-sid" placeholder="e.g. ZVW50-1234567" class="text-xs p-1.5 lg:p-2">
                     </div>
                     <div class="col-span-1">
-                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">ISSUE DATE</div>
-                        <input type="date" id="inp-sissue" class="text-xs md:text-sm">
+                        <div class="text-[8px] lg:text-[10px] text-cyan-500 mb-1">ISSUE DATE</div>
+                        <input type="date" id="inp-sissue" class="text-xs p-1.5 lg:p-2">
                     </div>
                     <div class="col-span-1">
-                        <div class="text-[8px] md:text-[10px] text-cyan-500 mb-1">EXPIRY DATE</div>
-                        <input type="date" id="inp-sexpire" class="text-xs md:text-sm">
+                        <div class="text-[8px] lg:text-[10px] text-cyan-500 mb-1">EXPIRY DATE</div>
+                        <input type="date" id="inp-sexpire" class="text-xs p-1.5 lg:p-2">
                     </div>
                 </div>
             `;
@@ -876,14 +836,14 @@ service cloud.firestore {
             modalTitle.innerText = "EDIT IDENTITY DATA";
             modalTargetType.value = "edit_vehicle";
             modalFields.innerHTML = `
-                <div class="text-[10px] md:text-xs text-cyan-500 mb-1">VEHICLE NAME</div>
-                <input type="text" id="inp-name" value="${v.name || ''}" required class="text-sm">
-                <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">NUMBER PLATE</div>
-                <input type="text" id="inp-plate" value="${v.plate || ''}" required class="text-sm">
-                <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">MAKER</div>
-                <input type="text" id="inp-maker" value="${v.maker || ''}" class="text-sm">
-                <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">MODEL YEAR</div>
-                <input type="text" id="inp-year" value="${v.year || ''}" class="text-sm">
+                <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">VEHICLE NAME</div>
+                <input type="text" id="inp-name" value="${v.name || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
+                <div class="text-[10px] lg:text-xs text-cyan-500 mb-1 mt-2">NUMBER PLATE</div>
+                <input type="text" id="inp-plate" value="${v.plate || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
+                <div class="text-[10px] lg:text-xs text-cyan-500 mb-1 mt-2">MAKER</div>
+                <input type="text" id="inp-maker" value="${v.maker || ''}" class="text-xs lg:text-sm p-1.5 lg:p-2">
+                <div class="text-[10px] lg:text-xs text-cyan-500 mb-1 mt-2">MODEL YEAR</div>
+                <input type="text" id="inp-year" value="${v.year || ''}" class="text-xs lg:text-sm p-1.5 lg:p-2">
             `;
             modal.classList.remove('hidden');
         };
@@ -893,9 +853,9 @@ service cloud.firestore {
             modalTargetType.value = "system_config";
             const currentKey = localStorage.getItem('gemini_api_key') || '';
             modalFields.innerHTML = `
-                <div class="text-[10px] md:text-xs text-cyan-500 mb-1">GEMINI API KEY (AI FEATURES)</div>
-                <input type="password" id="inp-api-key" value="${currentKey}" placeholder="AIzaSy..." class="text-sm">
-                <div class="text-[8px] md:text-[10px] text-cyan-700 mt-2">※APIキーはブラウザにローカル保存され、外部には送信されません。</div>
+                <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">GEMINI API KEY (AI FEATURES)</div>
+                <input type="password" id="inp-api-key" value="${currentKey}" placeholder="AIzaSy..." class="text-xs lg:text-sm p-2">
+                <div class="text-[8px] lg:text-[10px] text-cyan-700 mt-2">※APIキーはブラウザ内部にのみ保存され、外部には送信されません。</div>
             `;
             modal.classList.remove('hidden');
         };
@@ -909,12 +869,12 @@ service cloud.firestore {
             if (type === 'shakensho') {
                 modalTitle.innerText = "UPDATE CERTIFICATE DATA";
                 html = `
-                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">DOCUMENT ID</div>
-                    <input type="text" id="inp-sid" value="${v.shakensho.id || ''}" required class="text-sm">
-                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">ISSUE DATE</div>
-                    <input type="date" id="inp-sissue" value="${v.shakensho.issue || ''}" required class="text-sm">
-                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">EXPIRY DATE</div>
-                    <input type="date" id="inp-sexpire" value="${v.shakensho.expire || ''}" required class="text-sm">
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">DOCUMENT ID</div>
+                    <input type="text" id="inp-sid" value="${v.shakensho.id || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1 mt-2">ISSUE DATE</div>
+                    <input type="date" id="inp-sissue" value="${v.shakensho.issue || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1 mt-2">EXPIRY DATE</div>
+                    <input type="date" id="inp-sexpire" value="${v.shakensho.expire || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
                 `;
             } else if (type === 'oil') {
                 modalTitle.innerText = "UPDATE ENGINE OIL SCHEDULE";
@@ -925,23 +885,42 @@ service cloud.firestore {
                 const today = new Date().toISOString().split('T')[0];
 
                 html = `
-                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">LAST CHANGED DATE (今回交換した日)</div>
-                    <input type="date" id="inp-oil-last-date" value="${v.maintenance.oil_last_date || today}" required class="text-sm">
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">LAST CHANGED DATE (今回交換した日)</div>
+                    <input type="date" id="inp-oil-last-date" value="${v.maintenance?.oil_last_date || today}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
                     
-                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">ODOMETER (交換時の走行距離 km)</div>
-                    <input type="number" id="inp-oil-last-km" value="${v.maintenance.oil_last_km || ''}" placeholder="e.g. 15000" class="text-sm">
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1 mt-2">ODOMETER (交換時の走行距離 km)</div>
+                    <input type="number" id="inp-oil-last-km" value="${v.maintenance?.oil_last_km || ''}" placeholder="e.g. 15000" class="text-xs lg:text-sm p-1.5 lg:p-2">
 
-                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1 mt-2">NEXT DUE DATE (次回交換予定日)</div>
-                    <input type="date" id="inp-date" value="${v.maintenance.oil || defaultNext}" required class="text-sm">
-                    <div class="text-[8px] md:text-[10px] text-cyan-700 mt-1">※自動で半年後の日付がセットされています。</div>
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1 mt-2">NEXT DUE DATE (次回交換予定日)</div>
+                    <input type="date" id="inp-date" value="${v.maintenance?.oil || defaultNext}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
+                    <div class="text-[8px] lg:text-[10px] text-cyan-700 mt-1">※自動で半年後の日付がセットされています。</div>
+                `;
+            } else if (type === 'insurance') {
+                modalTitle.innerText = "UPDATE INSURANCE DATA";
+                const insDetail = v.insurance_detail || { company: '', policy_number: '' };
+                html = `
+                    <div class="flex flex-col gap-2 mb-2 border-b border-cyan-800 pb-3">
+                        <button type="button" onclick="document.getElementById('insurance-scan').click()" class="hud-panel w-full py-2 lg:py-3 text-cyan-300 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-[10px] lg:text-xs flex items-center justify-center gap-2 border-cyan-500">
+                            <i class="fas fa-camera text-base lg:text-lg"></i> SCAN POLICY (AUTO-FILL)
+                        </button>
+                        <div id="ins-scan-status" class="text-center text-[8px] lg:text-[10px] text-neon-yellow hidden animate-pulse mt-1">ANALYZING IMAGE DATA...</div>
+                    </div>
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">COMPANY (保険会社)</div>
+                    <input type="text" id="inp-ins-company" value="${insDetail.company || ''}" placeholder="e.g. 東京海上日動" class="text-xs lg:text-sm p-1.5 lg:p-2 mb-2">
+                    
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">POLICY NUMBER (証券番号)</div>
+                    <input type="text" id="inp-ins-policy" value="${insDetail.policy_number || ''}" placeholder="e.g. 123456789" class="text-xs lg:text-sm p-1.5 lg:p-2 mb-2">
+
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">EXPIRY DATE (次回更新日)</div>
+                    <input type="date" id="inp-date" value="${v.maintenance?.insurance || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
                 `;
             } else {
-                const titles = { 'shaken': 'INSPECTION DEADLINE', 'tires': 'TIRE CHANGE SCHEDULE', 'insurance': 'INSURANCE RENEWAL' };
-                const valMap = { 'shaken': v.maintenance.shaken, 'tires': v.maintenance.tires, 'insurance': v.maintenance.insurance };
+                const titles = { 'shaken': 'INSPECTION DEADLINE', 'tires': 'TIRE CHANGE SCHEDULE' };
+                const valMap = { 'shaken': v.maintenance?.shaken, 'tires': v.maintenance?.tires };
                 modalTitle.innerText = `UPDATE ${titles[type]}`;
                 html = `
-                    <div class="text-[10px] md:text-xs text-cyan-500 mb-1">NEXT DUE DATE</div>
-                    <input type="date" id="inp-date" value="${valMap[type] || ''}" required class="text-sm">
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">NEXT DUE DATE</div>
+                    <input type="date" id="inp-date" value="${valMap[type] || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
                 `;
             }
             modalFields.innerHTML = html;
@@ -957,19 +936,17 @@ service cloud.firestore {
             const aiContent = document.getElementById('ai-content');
             aiModal.classList.remove('hidden');
             
-            aiContent.innerHTML = `<div class="text-neon-yellow animate-pulse text-center mt-10"><i class="fas fa-satellite-dish text-4xl mb-4"></i><br>ESTABLISHING UPLINK TO AI CORE...<br>ANALYZING VEHICLE TELEMETRY...</div>`;
+            aiContent.innerHTML = `<div class="text-neon-yellow animate-pulse text-center mt-10"><i class="fas fa-satellite-dish text-2xl lg:text-4xl mb-4"></i><br>ESTABLISHING UPLINK TO AI CORE...<br>ANALYZING VEHICLE TELEMETRY...</div>`;
 
-            // APIキー取得時に前後の空白を削除
             const savedApiKey = (localStorage.getItem('gemini_api_key') || "").trim();
 
-            // Calculate current stats to feed the AI prompt
             const today = new Date();
             const calcDays = (target) => Math.ceil((new Date(target) - today) / (1000 * 60 * 60 * 24));
             
-            const oilDays = calcDays(v.maintenance.oil);
-            const tireDays = calcDays(v.maintenance.tires);
-            const shakenDays = calcDays(v.maintenance.shaken);
-            const insDays = calcDays(v.maintenance.insurance);
+            const oilDays = calcDays(v.maintenance?.oil);
+            const tireDays = calcDays(v.maintenance?.tires);
+            const shakenDays = calcDays(v.maintenance?.shaken);
+            const insDays = calcDays(v.maintenance?.insurance);
 
             const prompt = `
             あなたは「VEHICLE SYS-COM」という近未来的な車両管理システムに搭載されたAIアドバイザーです。
@@ -985,16 +962,15 @@ service cloud.firestore {
             【ターゲット車両データ】
             - メーカー/車名: ${v.maker} ${v.name}
             - 年式: ${v.year}
-            - エンジンオイル交換期限: 残り ${oilDays} 日 (前回交換時の走行距離: ${v.maintenance.oil_last_km || '記録なし'} km)
+            - エンジンオイル交換期限: 残り ${oilDays} 日 (前回交換時の走行距離: ${v.maintenance?.oil_last_km || '記録なし'} km)
             - タイヤ交換/ローテーション期限: 残り ${tireDays} 日
             - 車検満了日: 残り ${shakenDays} 日
             - 任意保険更新: 残り ${insDays} 日
             `;
 
             try {
-                // 自動フォールバック用モデルリスト（最新モデルに更新）
                 const modelsToTry = savedApiKey 
-                    ? ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-pro"] 
+                    ? ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"] 
                     : ["gemini-2.5-flash-preview-09-2025"];
 
                 const payload = {
@@ -1016,33 +992,30 @@ service cloud.firestore {
                         
                         if (!response.ok) {
                             const errData = await response.json().catch(() => ({}));
-                            throw new Error(`HTTP ${response.status} (${model}): ${errData?.error?.message || 'Unknown API Error'}`);
+                            throw new Error(`HTTP ${response.status} (${model}): ${errData?.error?.message || 'Unknown Error'}`);
                         }
                         
                         resultJson = await response.json();
-                        break; // 成功した場合はループを抜ける
+                        break; 
                     } catch (err) {
                         lastErrorMsg = err.message;
-                        console.warn(`[AI SYS-CHECK] ${model} failed, trying next...`, err.message);
                         await new Promise(res => setTimeout(res, 1000));
                     }
                 }
 
                 if (!resultJson) throw new Error(lastErrorMsg);
 
-                const text = resultJson.candidates[0].content.parts[0].text.replace(/```html|```/g, ''); // sanitize if AI returns markdown
+                const text = resultJson.candidates[0].content.parts[0].text.replace(/```html|```/g, ''); 
                 
-                aiContent.innerHTML = ''; // clear loading
+                aiContent.innerHTML = ''; 
                 
-                // Simple typewriter effect simulation
                 const resultDiv = document.createElement('div');
                 resultDiv.className = "text-cyan-100";
                 resultDiv.innerHTML = text;
                 aiContent.appendChild(resultDiv);
                 
-                // Add terminal cursor
                 const cursor = document.createElement('div');
-                cursor.className = "ai-text inline-block w-2 h-4 bg-neon-yellow ml-1 align-middle mt-4";
+                cursor.className = "ai-text inline-block w-2 h-3 lg:h-4 bg-neon-yellow ml-1 align-middle mt-2";
                 aiContent.appendChild(cursor);
 
             } catch (error) {
@@ -1052,7 +1025,7 @@ service cloud.firestore {
                     errMsg += "<br><br><span class='text-yellow-400'>※FirebaseのAPIキーではなく、Google AI Studio専用のAPIキーを設定しているか確認してください。</span>";
                 }
                 const msg = savedApiKey ? `AI CORE UNREACHABLE.<br>${errMsg}` : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
-                aiContent.innerHTML = `<div class="text-neon-red text-center mt-10"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><br>ERROR: ${msg}</div>`;
+                aiContent.innerHTML = `<div class="text-neon-red text-center mt-10"><i class="fas fa-exclamation-triangle text-2xl lg:text-4xl mb-4"></i><br>ERROR: ${msg}</div>`;
             }
         };
 
@@ -1063,11 +1036,10 @@ service cloud.firestore {
             const statusEl = document.getElementById('scan-status');
             statusEl.classList.remove('hidden');
             
-            // APIキー取得時に前後の空白を削除
             const savedApiKey = (localStorage.getItem('gemini_api_key') || "").trim();
 
             statusEl.innerText = "ANALYZING IMAGE DATA...";
-            statusEl.className = "text-center text-[8px] md:text-[10px] text-neon-yellow animate-pulse mt-2";
+            statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-yellow animate-pulse mt-2";
 
             try {
                 const base64String = await new Promise((resolve, reject) => {
@@ -1080,7 +1052,6 @@ service cloud.firestore {
                 const mimeType = base64String.split(';')[0].split(':')[1];
                 const base64Data = base64String.split(',')[1];
                 
-                // 画像スキャン対応モデルの自動フォールバックリスト（最新モデルに更新）
                 const modelsToTry = savedApiKey 
                     ? ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"] 
                     : ["gemini-2.5-flash-preview-09-2025"];
@@ -1129,10 +1100,9 @@ service cloud.firestore {
                         const result = await response.json();
                         const text = result.candidates[0].content.parts[0].text;
                         resultJson = JSON.parse(text);
-                        break; // 成功した場合はループを抜ける
+                        break; 
                     } catch (error) {
                         lastError = error.message;
-                        console.warn(`[SCAN] ${model} failed, trying next...`, error.message);
                         await new Promise(res => setTimeout(res, 1000));
                     }
                 }
@@ -1147,16 +1117,110 @@ service cloud.firestore {
                 if (resultJson.expireDate) document.getElementById('inp-sexpire').value = resultJson.expireDate;
                 
                 statusEl.innerText = "DATA EXTRACTED SUCCESSFULLY";
-                statusEl.className = "text-center text-[8px] md:text-[10px] text-neon-green mt-2";
+                statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-green mt-2";
             } catch (error) {
                 console.error("Scan Error Details:", error);
                 let errMsg = error.message;
                 if (errMsg.includes("404")) {
                     errMsg += "<br><br><span class='text-[#ff0]'>※Firebaseのキーではなく、Google AI Studio専用のAPIキーを入力してください。</span>";
                 }
-                // APIキーの有無によってエラーメッセージを切り替え、詳細なエラー内容も表示する
                 statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${errMsg}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
-                statusEl.className = "text-center text-[8px] md:text-[10px] text-neon-red mt-2";
+                statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-red mt-2";
+            }
+            event.target.value = '';
+        };
+
+        window.handleInsuranceScan = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusEl = document.getElementById('ins-scan-status');
+            statusEl.classList.remove('hidden');
+            
+            const savedApiKey = (localStorage.getItem('gemini_api_key') || "").trim();
+
+            statusEl.innerText = "ANALYZING IMAGE DATA...";
+            statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-yellow animate-pulse mt-2";
+
+            try {
+                const base64String = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+
+                const mimeType = base64String.split(';')[0].split(':')[1];
+                const base64Data = base64String.split(',')[1];
+                
+                const modelsToTry = savedApiKey 
+                    ? ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"] 
+                    : ["gemini-2.5-flash-preview-09-2025"];
+
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: "Extract vehicle insurance information from this Japanese auto insurance policy document (自動車保険証券). Convert Japanese era dates (Reiwa, Heisei, etc.) to Gregorian YYYY-MM-DD. If some parts are not readable, guess or leave them empty. Return ONLY strict JSON." },
+                            { inlineData: { mimeType: mimeType, data: base64Data } }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                company: { type: "STRING", description: "Insurance company name (引受保険会社など)" },
+                                policyNumber: { type: "STRING", description: "Policy number (証券番号)" },
+                                expireDate: { type: "STRING", description: "Expiry date or Next renewal date (保険期間の満了日、満期日、更新日) in YYYY-MM-DD" }
+                            }
+                        }
+                    }
+                };
+
+                let resultJson = null;
+                let lastError = "";
+
+                for (const model of modelsToTry) {
+                    try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${savedApiKey}`;
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        if (!response.ok) {
+                            const errData = await response.json().catch(() => ({}));
+                            throw new Error(`HTTP ${response.status} (${model}): ${errData?.error?.message || 'Unknown API Error'}`);
+                        }
+                        
+                        const result = await response.json();
+                        const text = result.candidates[0].content.parts[0].text;
+                        resultJson = JSON.parse(text);
+                        break; 
+                    } catch (error) {
+                        lastError = error.message;
+                        await new Promise(res => setTimeout(res, 1000));
+                    }
+                }
+
+                if (!resultJson) throw new Error(lastError);
+
+                if (resultJson.company) document.getElementById('inp-ins-company').value = resultJson.company;
+                if (resultJson.policyNumber) document.getElementById('inp-ins-policy').value = resultJson.policyNumber;
+                if (resultJson.expireDate) document.getElementById('inp-date').value = resultJson.expireDate;
+                
+                statusEl.innerText = "DATA EXTRACTED SUCCESSFULLY";
+                statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-green mt-2";
+            } catch (error) {
+                console.error("Scan Error Details:", error);
+                let errMsg = error.message;
+                if (errMsg.includes("404")) {
+                    errMsg += "<br><br><span class='text-[#ff0]'>※Firebaseのキーではなく、Google AI Studio専用のAPIキーを入力してください。</span>";
+                }
+                statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${errMsg}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
+                statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-red mt-2";
             }
             event.target.value = '';
         };
@@ -1169,7 +1233,7 @@ service cloud.firestore {
             modalTargetType.value = "delete_vehicle";
             modalFields.innerHTML = `
                 <div class="text-neon-red text-center py-4 sys-font">
-                    <i class="fas fa-exclamation-triangle text-4xl mb-3 animate-pulse"></i><br>
+                    <i class="fas fa-exclamation-triangle text-2xl lg:text-4xl mb-3 animate-pulse"></i><br>
                     TARGET <span class="text-white">[${v.name}]</span> WILL BE PERMANENTLY DELETED.<br>
                     PROCEED WITH PURGE?
                 </div>
@@ -1185,7 +1249,6 @@ service cloud.firestore {
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = async function() {
-                    // Resize to avoid Firebase 1MB doc limit
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 600;
                     let scaleSize = 1;
@@ -1216,7 +1279,6 @@ service cloud.firestore {
             const type = modalTargetType.value;
 
             if (type === 'system_config') {
-                // 保存時に空白を削除
                 const newKey = document.getElementById('inp-api-key').value.trim();
                 localStorage.setItem('gemini_api_key', newKey);
                 window.closeModal();
@@ -1240,7 +1302,8 @@ service cloud.firestore {
                             issue: document.getElementById('inp-sissue')?.value || '2024-01-01', 
                             expire: expireVal 
                         },
-                        maintenance: { shaken: expireVal, oil: '2024-06-01', oil_last_date: '', oil_last_km: '', tires: '2024-12-01', insurance: '2025-01-01' }
+                        maintenance: { shaken: expireVal, oil: '2024-06-01', oil_last_date: '', oil_last_km: '', tires: '2024-12-01', insurance: '2025-01-01' },
+                        insurance_detail: { company: '', policy_number: '' }
                     };
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'vehicles', newId), newVehicleData);
                     currentVehicleId = newId;
@@ -1253,7 +1316,7 @@ service cloud.firestore {
                     if (!v) return;
                     
                     const updatedData = JSON.parse(JSON.stringify(v));
-                    delete updatedData.id; // Exclude ID from document body
+                    delete updatedData.id; 
                     
                     if (type === 'edit_vehicle') {
                         updatedData.name = document.getElementById('inp-name').value;
@@ -1269,6 +1332,12 @@ service cloud.firestore {
                         updatedData.maintenance.oil_last_date = document.getElementById('inp-oil-last-date').value;
                         updatedData.maintenance.oil_last_km = document.getElementById('inp-oil-last-km').value;
                         updatedData.maintenance.oil = document.getElementById('inp-date').value;
+                    } else if (type === 'insurance') {
+                        updatedData.insurance_detail = {
+                            company: document.getElementById('inp-ins-company').value,
+                            policy_number: document.getElementById('inp-ins-policy').value
+                        };
+                        updatedData.maintenance.insurance = document.getElementById('inp-date').value;
                     } else {
                         updatedData.maintenance[type] = document.getElementById('inp-date').value;
                     }
