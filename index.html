@@ -1060,7 +1060,7 @@
                     contents: [{
                         role: "user",
                         parts: [
-                            { text: "Extract vehicle information from this Japanese vehicle inspection certificate (車検証). Convert Japanese era dates (Reiwa, Heisei, etc.) to Gregorian YYYY-MM-DD. If some parts are not readable, guess or leave them empty. Return ONLY strict JSON." },
+                            { text: "あなたは日本の車検証（自動車検査証）を読み取る専門家です。画像から以下の情報を正確に抽出し、JSON形式で返してください。\n1. name (通称名): 例: プリウス, フィット\n2. plate (自動車登録番号/車両番号): 例: 品川 500 あ 12-34\n3. maker (車名): 例: トヨタ, ホンダ\n4. documentId (車台番号): 英数字とハイフン。例: ZVW50-1234567\n5. issueDate (交付年月日): 画像の和暦を確実に西暦(YYYY-MM-DD)に計算・変換して出力。例: 令和5年3月15日 -> 2023-03-15 (計算ルール: 令和X年=2018+X年、平成X年=1988+X年)\n6. expireDate (有効期間の満了する日): 和暦を確実に西暦(YYYY-MM-DD)に計算・変換して出力。例: 令和7年12月1日 -> 2025-12-01\n注意点:\n- 「車名(maker)」と「通称名(name)」を混同しないでください。\n- 文字が不明瞭な場合は推測してください。\n- JSON形式のみを返してください。" },
                             { inlineData: { mimeType: mimeType, data: base64Data } }
                         ]
                     }],
@@ -1161,7 +1161,7 @@
                     contents: [{
                         role: "user",
                         parts: [
-                            { text: "Extract vehicle insurance information from this Japanese auto insurance policy document (自動車保険証券). Convert Japanese era dates (Reiwa, Heisei, etc.) to Gregorian YYYY-MM-DD. If some parts are not readable, guess or leave them empty. Return ONLY strict JSON." },
+                            { text: "あなたは日本の自動車保険証券を読み取る専門家です。画像から以下の情報を抽出し、JSON形式で返してください。\n1. company: 引受保険会社名 (例: 東京海上日動, 損保ジャパン)\n2. policyNumber: 証券番号\n3. expireDate: 保険期間の満了日、満期日、または次回更新日を和暦から確実に西暦(YYYY-MM-DD)に計算・変換して出力。例: 令和6年4月1日 -> 2024-04-01 (計算ルール: 令和X年=2018+X年、平成X年=1988+X年)\n注意点:\n- 文字が不明瞭な場合は推測してください。\n- JSON形式のみを返してください。" },
                             { inlineData: { mimeType: mimeType, data: base64Data } }
                         ]
                     }],
