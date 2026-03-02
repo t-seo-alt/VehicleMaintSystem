@@ -126,7 +126,7 @@
             backdrop-filter: blur(10px);
         }
         
-        input[type="date"], input[type="text"], input[type="password"], input[type="number"], input[type="email"] {
+        input[type="date"], input[type="text"], input[type="password"], input[type="number"], input[type="email"], select {
             background: rgba(0, 20, 40, 0.8);
             border: 1px solid var(--neon-cyan);
             color: var(--neon-cyan);
@@ -136,6 +136,10 @@
         }
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(130deg);
+        }
+        select option {
+            background: rgba(0, 20, 40, 0.95);
+            color: var(--neon-cyan);
         }
 
         /* Typewriter effect for AI */
@@ -196,11 +200,10 @@
         </div>
     </header>
 
-    <!-- Main Layout (Column on Mobile, Row on Desktop) -->
+    <!-- Main Layout -->
     <div class="flex flex-col lg:flex-row flex-1 overflow-hidden relative z-10 w-full">
         
-        <!-- Sidebar (Vehicle List) -->
-        <!-- モバイルでは上部に横スクロールで配置、PCでは左に縦スクロール -->
+        <!-- Sidebar -->
         <aside class="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-cyan-800 bg-black/40 flex flex-col p-2 lg:p-4 gap-2 shrink-0">
             <div class="text-[10px] lg:text-xs text-cyan-600 sys-font border-b border-cyan-800/50 pb-1 lg:pb-2">TARGET SELECT</div>
             <div id="vehicle-list" class="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto pb-1 lg:pb-0">
@@ -212,8 +215,7 @@
         <main class="flex-1 p-3 lg:p-6 overflow-y-auto w-full">
             <div id="dashboard-content" class="max-w-6xl mx-auto hidden flex-col gap-4 lg:gap-6 pb-10">
                 
-                <!-- Top Section: Vehicle Info & Shakensho -->
-                <!-- モバイルでは縦1列、PCでは3列 -->
+                <!-- Top Section -->
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
                     
                     <!-- Vehicle Identity -->
@@ -252,7 +254,6 @@
                             <button onclick="openUpdateModal('shakensho')" class="text-[10px] lg:text-xs text-cyan-400 border border-cyan-700 px-2 py-1 hover:bg-cyan-900/50">UPDATE DATA</button>
                         </div>
                         
-                        <!-- モバイルでは縦1列、タブレット以上で2列 -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
                             <div class="flex flex-col gap-3">
                                 <div>
@@ -286,7 +287,6 @@
                             <i class="fas fa-brain animate-pulse"></i> <span>AI CHECK ✨</span>
                         </button>
                     </div>
-                    <!-- モバイル: 1列, タブレット: 2列, PC: 4列 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                         
                         <!-- Shaken -->
@@ -298,7 +298,7 @@
                                 <div class="sys-font text-[10px] lg:text-sm text-cyan-300"><i class="fas fa-clipboard-check mr-1"></i>INSPECTION</div>
                                 <button onclick="openUpdateModal('shaken')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
                             </div>
-                            <div class="text-[8px] text-gray-400 mb-1 z-10">車検満了日</div>
+                            <div class="text-[8px] text-gray-400 mb-1 z-10" id="m-shaken-cycle-label">車検満了日 (2年ごと)</div>
                             <div class="text-lg lg:text-2xl sys-font mb-2 z-10" id="m-shaken-date">--</div>
                             <div class="mt-auto z-10">
                                 <div class="flex justify-between text-[8px] lg:text-xs sys-font mb-1">
@@ -404,7 +404,7 @@
         </div>
     </div>
 
-    <!-- AI Diagnostics Terminal Modal -->
+    <!-- AI Diagnostics Modal -->
     <div id="ai-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-3 lg:p-4">
         <div class="hud-panel w-full max-w-2xl p-4 lg:p-6 border-neon-yellow shadow-[0_0_20px_rgba(255,255,0,0.15)] flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center mb-3 border-b border-yellow-800 pb-2 shrink-0">
@@ -413,7 +413,6 @@
             </div>
             <div class="flex-1 overflow-y-auto p-3 bg-black/60 border border-yellow-900/50 rounded">
                 <div id="ai-content" class="text-[10px] lg:text-sm leading-relaxed font-mono break-words">
-                    <!-- AI response injected here -->
                 </div>
             </div>
         </div>
@@ -450,7 +449,7 @@
         </div>
     </div>
 
-    <!-- Hidden File Input for Image Upload -->
+    <!-- Hidden Inputs -->
     <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
     <input type="file" id="shakensho-scan" accept="image/*" class="hidden" onchange="handleShakenshoScan(event)">
     <input type="file" id="insurance-scan" accept="image/*" class="hidden" onchange="handleInsuranceScan(event)">
@@ -480,7 +479,6 @@
         let vehicles = [];
         let currentVehicleId = null;
 
-        // --- Global Alert System ---
         window.showSystemAlert = (title, message) => {
             const existing = document.getElementById('system-alert');
             if(existing) existing.remove();
@@ -503,7 +501,6 @@
             document.body.insertAdjacentHTML('beforeend', alertHtml);
         };
 
-        // --- Clock Update ---
         function updateTime() {
             const now = new Date();
             document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', { hour12: false }) + '.' + Math.floor(now.getMilliseconds()/100);
@@ -511,7 +508,6 @@
         }
         updateTime();
 
-        // --- Auth & Data Fetching ---
         const initAuth = async () => {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -525,14 +521,8 @@
                 }
             } catch (error) {
                 console.error("Auth Init Error:", error);
-                const statusEl = document.getElementById('auth-status');
-                if(statusEl) {
-                    statusEl.innerText = 'AUTH FAILED';
-                    statusEl.className = 'text-neon-red';
-                }
             }
         };
-
         initAuth();
 
         onAuthStateChanged(auth, (user) => {
@@ -587,14 +577,12 @@
             });
         }
 
-        // --- Logic & Rendering ---
         function renderSidebar() {
             const list = document.getElementById('vehicle-list');
             list.innerHTML = '';
             vehicles.forEach(v => {
                 const isActive = v.id === currentVehicleId;
                 const btn = document.createElement('button');
-                // スマホ：横並び（min-w） PC：縦並び
                 btn.className = `shrink-0 w-32 lg:w-full text-left p-2 border-b-2 lg:border-b-0 lg:border-l-4 transition-all ${isActive ? 'bg-cyan-900/40 border-neon-cyan text-white' : 'border-transparent text-cyan-600 hover:bg-cyan-900/20 hover:border-cyan-700'}`;
                 btn.onclick = () => selectVehicle(v.id);
                 btn.innerHTML = `
@@ -632,18 +620,22 @@
             document.getElementById('s-issue').innerText = v.shakensho.issue || '--';
             document.getElementById('s-expire').innerText = v.shakensho.expire || '--';
 
-            // Populate Oil Last Change Data
             const oilLastDate = v.maintenance?.oil_last_date || '----/--/--';
             const oilLastKm = v.maintenance?.oil_last_km ? Number(v.maintenance.oil_last_km).toLocaleString() + ' km' : '-- km';
             document.getElementById('m-oil-last').innerText = `LAST: ${oilLastDate} ( ${oilLastKm} )`;
 
-            // Populate Insurance Detail
             const insDetail = v.insurance_detail || { company: '', policy_number: '' };
             const insText = insDetail.company ? `${insDetail.company} / ${insDetail.policy_number || '番号不明'}` : 'COMPANY UNREGISTERED';
             document.getElementById('m-ins-detail').innerText = insText;
 
-            // Calculate & Render Maintenance Modules
-            renderMaintenanceModule('shaken', v.maintenance?.shaken, 730);
+            // --- 車検サイクルの設定反映 ---
+            let shakenCycle = v.maintenance?.shaken_cycle || 2;
+            const sLabel = document.getElementById('m-shaken-cycle-label');
+            if(shakenCycle == 3) sLabel.innerText = "車検満了日 (初回3年)";
+            else if(shakenCycle == 1) sLabel.innerText = "車検満了日 (1年ごと)";
+            else sLabel.innerText = "車検満了日 (2年ごと)";
+
+            renderMaintenanceModule('shaken', v.maintenance?.shaken, shakenCycle * 365);
             renderMaintenanceModule('oil', v.maintenance?.oil, 180);
             renderMaintenanceModule('tires', v.maintenance?.tires, 365);
             renderMaintenanceModule('ins', v.maintenance?.insurance, 365);
@@ -751,12 +743,6 @@
             
             if (!email || !pass) {
                 errEl.innerText = "ERROR: EMAIL AND PASSWORD REQUIRED.";
-                errEl.classList.remove('hidden');
-                return;
-            }
-
-            if (action === 'register' && pass.length < 6) {
-                errEl.innerText = "ERROR: PASSWORD MUST BE AT LEAST 6 CHARACTERS.";
                 errEl.classList.remove('hidden');
                 return;
             }
@@ -876,9 +862,22 @@
                     <div class="text-[10px] lg:text-xs text-cyan-500 mb-1 mt-2">EXPIRY DATE</div>
                     <input type="date" id="inp-sexpire" value="${v.shakensho.expire || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
                 `;
+            } else if (type === 'shaken') {
+                // --- 手動で車検サイクルを更新できるUI ---
+                modalTitle.innerText = `UPDATE INSPECTION DEADLINE`;
+                const currentCycle = v.maintenance?.shaken_cycle || 2;
+                html = `
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">NEXT DUE DATE (車検満了日)</div>
+                    <input type="date" id="inp-date" value="${v.maintenance?.shaken || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2 mb-3 w-full">
+                    <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">INSPECTION CYCLE (車検の期間)</div>
+                    <select id="inp-shaken-cycle" class="text-xs lg:text-sm p-1.5 lg:p-2 w-full">
+                        <option value="1" ${currentCycle == 1 ? 'selected' : ''}>1 YEAR (1年ごと・貨物等)</option>
+                        <option value="2" ${currentCycle == 2 ? 'selected' : ''}>2 YEARS (2年ごと・通常)</option>
+                        <option value="3" ${currentCycle == 3 ? 'selected' : ''}>3 YEARS (3年・新車初回)</option>
+                    </select>
+                `;
             } else if (type === 'oil') {
                 modalTitle.innerText = "UPDATE ENGINE OIL SCHEDULE";
-                
                 const nextDate = new Date();
                 nextDate.setMonth(nextDate.getMonth() + 6);
                 const defaultNext = nextDate.toISOString().split('T')[0];
@@ -915,19 +914,17 @@
                     <input type="date" id="inp-date" value="${v.maintenance?.insurance || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
                 `;
             } else {
-                const titles = { 'shaken': 'INSPECTION DEADLINE', 'tires': 'TIRE CHANGE SCHEDULE' };
-                const valMap = { 'shaken': v.maintenance?.shaken, 'tires': v.maintenance?.tires };
+                const titles = { 'tires': 'TIRE CHANGE SCHEDULE' };
                 modalTitle.innerText = `UPDATE ${titles[type]}`;
                 html = `
                     <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">NEXT DUE DATE</div>
-                    <input type="date" id="inp-date" value="${valMap[type] || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
+                    <input type="date" id="inp-date" value="${v.maintenance?.tires || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
                 `;
             }
             modalFields.innerHTML = html;
             modal.classList.remove('hidden');
         };
 
-        // --- AI Features ---
         window.openAiDiagnostics = async () => {
             if(!currentVehicleId) return;
             const v = vehicles.find(v => v.id === currentVehicleId);
@@ -1020,11 +1017,7 @@
 
             } catch (error) {
                 console.error("AI Error:", error);
-                let errMsg = error.message;
-                if (errMsg.includes("404")) {
-                    errMsg += "<br><br><span class='text-yellow-400'>※FirebaseのAPIキーではなく、Google AI Studio専用のAPIキーを設定しているか確認してください。</span>";
-                }
-                const msg = savedApiKey ? `AI CORE UNREACHABLE.<br>${errMsg}` : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
+                const msg = savedApiKey ? `AI CORE UNREACHABLE.<br>${error.message}` : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
                 aiContent.innerHTML = `<div class="text-neon-red text-center mt-10"><i class="fas fa-exclamation-triangle text-2xl lg:text-4xl mb-4"></i><br>ERROR: ${msg}</div>`;
             }
         };
@@ -1060,7 +1053,7 @@
                     contents: [{
                         role: "user",
                         parts: [
-                            { text: "あなたは日本の車検証（自動車検査証）を読み取る専門家です。画像から以下の情報を正確に抽出し、JSON形式で返してください。\n1. name (通称名): 例: プリウス, フィット\n2. plate (自動車登録番号/車両番号): 例: 品川 500 あ 12-34\n3. maker (車名): 例: トヨタ, ホンダ\n4. documentId (車台番号): 英数字とハイフン。例: ZVW50-1234567\n5. issueDate (交付年月日): 画像の和暦を確実に西暦(YYYY-MM-DD)に計算・変換して出力。例: 令和5年3月15日 -> 2023-03-15 (計算ルール: 令和X年=2018+X年、平成X年=1988+X年)\n6. expireDate (有効期間の満了する日): 和暦を確実に西暦(YYYY-MM-DD)に計算・変換して出力。例: 令和7年12月1日 -> 2025-12-01\n注意点:\n- 「車名(maker)」と「通称名(name)」を混同しないでください。\n- 文字が不明瞭な場合は推測してください。\n- JSON形式のみを返してください。" },
+                            { text: "あなたは日本の車検証（自動車検査証）を読み取る専門家です。画像から以下の情報を正確に抽出し、JSON形式で返してください。\n1. name (通称名): 例: プリウス, フィット\n2. plate (自動車登録番号/車両番号): 例: 品川 500 あ 12-34\n3. maker (車名): 例: トヨタ, ホンダ\n4. documentId (車台番号): 英数字とハイフン。例: ZVW50-1234567\n5. issueDate (交付年月日): 画像の和暦を確実に西暦(YYYY-MM-DD)に計算して出力。例: 令和5年3月15日 -> 2023-03-15 (計算ルール: 令和X年=2018+X年、平成X年=1988+X年)\n6. expireDate (有効期間の満了する日): 和暦を確実に西暦(YYYY-MM-DD)に計算して出力。\n注意点:\n- 「車名」と「通称名」を混同しないでください。\n- JSON形式のみを返してください。" },
                             { inlineData: { mimeType: mimeType, data: base64Data } }
                         ]
                     }],
@@ -1120,11 +1113,7 @@
                 statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-green mt-2";
             } catch (error) {
                 console.error("Scan Error Details:", error);
-                let errMsg = error.message;
-                if (errMsg.includes("404")) {
-                    errMsg += "<br><br><span class='text-[#ff0]'>※Firebaseのキーではなく、Google AI Studio専用のAPIキーを入力してください。</span>";
-                }
-                statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${errMsg}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
+                statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${error.message}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
                 statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-red mt-2";
             }
             event.target.value = '';
@@ -1161,7 +1150,7 @@
                     contents: [{
                         role: "user",
                         parts: [
-                            { text: "あなたは日本の自動車保険証券を読み取る専門家です。画像から以下の情報を抽出し、JSON形式で返してください。\n1. company: 引受保険会社名 (例: 東京海上日動, 損保ジャパン)\n2. policyNumber: 証券番号\n3. expireDate: 保険期間の満了日、満期日、または次回更新日を和暦から確実に西暦(YYYY-MM-DD)に計算・変換して出力。例: 令和6年4月1日 -> 2024-04-01 (計算ルール: 令和X年=2018+X年、平成X年=1988+X年)\n注意点:\n- 文字が不明瞭な場合は推測してください。\n- JSON形式のみを返してください。" },
+                            { text: "あなたは日本の自動車保険証券を読み取る専門家です。画像から以下の情報を抽出し、JSON形式で返してください。\n1. company: 引受保険会社名 (例: 東京海上日動, 損保ジャパン)\n2. policyNumber: 証券番号\n3. expireDate: 保険期間の満了日、満期日、または次回更新日を和暦から確実に西暦(YYYY-MM-DD)に計算して出力。例: 令和6年4月1日 -> 2024-04-01 (計算ルール: 令和X年=2018+X年、平成X年=1988+X年)\n注意点:\n- 文字が不明瞭な場合は推測してください。\n- JSON形式のみを返してください。" },
                             { inlineData: { mimeType: mimeType, data: base64Data } }
                         ]
                     }],
@@ -1215,11 +1204,7 @@
                 statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-green mt-2";
             } catch (error) {
                 console.error("Scan Error Details:", error);
-                let errMsg = error.message;
-                if (errMsg.includes("404")) {
-                    errMsg += "<br><br><span class='text-[#ff0]'>※Firebaseのキーではなく、Google AI Studio専用のAPIキーを入力してください。</span>";
-                }
-                statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${errMsg}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
+                statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${error.message}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
                 statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-red mt-2";
             }
             event.target.value = '';
@@ -1290,7 +1275,18 @@
             try {
                 if (type === 'new_vehicle') {
                     const newId = 'V-' + Date.now();
+                    const issueVal = document.getElementById('inp-sissue')?.value || '2024-01-01';
                     const expireVal = document.getElementById('inp-sexpire')?.value || '2026-01-01';
+                    
+                    // --- 交付日と満了日から、自動で車検サイクルを判定 ---
+                    let cycle = 2;
+                    if (issueVal && expireVal) {
+                        const diff = Math.ceil((new Date(expireVal) - new Date(issueVal)) / (1000 * 60 * 60 * 24));
+                        if (diff > 800) cycle = 3; // 約3年
+                        else if (diff > 500) cycle = 2; // 約2年
+                        else if (diff > 0) cycle = 1; // 1年
+                    }
+
                     const newVehicleData = {
                         name: document.getElementById('inp-name').value || 'UNKNOWN',
                         plate: document.getElementById('inp-plate').value || 'UNKNOWN',
@@ -1299,10 +1295,10 @@
                         image: null,
                         shakensho: { 
                             id: document.getElementById('inp-sid')?.value || '----------', 
-                            issue: document.getElementById('inp-sissue')?.value || '2024-01-01', 
+                            issue: issueVal, 
                             expire: expireVal 
                         },
-                        maintenance: { shaken: expireVal, oil: '2024-06-01', oil_last_date: '', oil_last_km: '', tires: '2024-12-01', insurance: '2025-01-01' },
+                        maintenance: { shaken: expireVal, shaken_cycle: cycle, oil: '2024-06-01', oil_last_date: '', oil_last_km: '', tires: '2024-12-01', insurance: '2025-01-01' },
                         insurance_detail: { company: '', policy_number: '' }
                     };
                     await setDoc(doc(db, 'artifacts', appId, 'users', userId, 'vehicles', newId), newVehicleData);
@@ -1328,6 +1324,20 @@
                         updatedData.shakensho.issue = document.getElementById('inp-sissue').value;
                         updatedData.shakensho.expire = document.getElementById('inp-sexpire').value;
                         updatedData.maintenance.shaken = updatedData.shakensho.expire;
+                        
+                        // 車検証データ上書き時も自動判定
+                        const issueD = new Date(updatedData.shakensho.issue);
+                        const expireD = new Date(updatedData.shakensho.expire);
+                        if (!isNaN(issueD) && !isNaN(expireD)) {
+                            const diff = Math.ceil((expireD - issueD) / (1000 * 60 * 60 * 24));
+                            if (diff > 800) updatedData.maintenance.shaken_cycle = 3;
+                            else if (diff > 500) updatedData.maintenance.shaken_cycle = 2;
+                            else updatedData.maintenance.shaken_cycle = 1;
+                        }
+                    } else if (type === 'shaken') {
+                        updatedData.maintenance.shaken = document.getElementById('inp-date').value;
+                        // ユーザーが手動で設定したサイクルを保存
+                        updatedData.maintenance.shaken_cycle = parseInt(document.getElementById('inp-shaken-cycle').value, 10) || 2;
                     } else if (type === 'oil') {
                         updatedData.maintenance.oil_last_date = document.getElementById('inp-oil-last-date').value;
                         updatedData.maintenance.oil_last_km = document.getElementById('inp-oil-last-km').value;
