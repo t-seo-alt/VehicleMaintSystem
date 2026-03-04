@@ -149,6 +149,12 @@
             animation: blink 1s step-end infinite;
         }
         @keyframes blink { 50% { border-color: transparent; } }
+
+        /* Custom Input for Chat */
+        #chat-input {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+        }
     </style>
 </head>
 <body class="text-sm">
@@ -251,7 +257,10 @@
                     <div class="hud-panel p-4 xl:col-span-2 flex flex-col">
                         <div class="flex justify-between items-start mb-3 border-b border-cyan-800/50 pb-2">
                             <h2 class="sys-font text-neon-cyan text-sm lg:text-lg"><i class="fas fa-file-invoice mr-2"></i>CERTIFICATE</h2>
-                            <button onclick="openUpdateModal('shakensho')" class="text-[10px] lg:text-xs text-cyan-400 border border-cyan-700 px-2 py-1 hover:bg-cyan-900/50">UPDATE DATA</button>
+                            <div class="flex gap-2">
+                                <button id="btn-view-shakensho" class="hidden text-[10px] lg:text-xs text-cyan-200 border border-cyan-600 px-2 py-1 hover:bg-cyan-800/50"><i class="fas fa-image mr-1"></i>VIEW</button>
+                                <button onclick="openUpdateModal('shakensho')" class="text-[10px] lg:text-xs text-cyan-400 border border-cyan-700 px-2 py-1 hover:bg-cyan-900/50">UPDATE DATA</button>
+                            </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
@@ -283,9 +292,14 @@
                 <div class="mt-2">
                     <div class="flex justify-between items-center mb-3 border-l-2 border-cyan-500 pl-2">
                         <h2 class="sys-font text-cyan-500 text-xs lg:text-sm tracking-widest">MAINTENANCE</h2>
-                        <button onclick="openAiDiagnostics()" class="hud-panel px-3 py-1 lg:px-4 lg:py-2 text-neon-yellow hover:bg-yellow-900/30 transition-colors sys-font text-[10px] lg:text-xs flex items-center gap-2 border-yellow-500/50">
-                            <i class="fas fa-brain animate-pulse"></i> <span>AI CHECK ✨</span>
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="openAiMechanic()" class="hud-panel px-3 py-1 lg:px-4 lg:py-2 text-neon-blue hover:bg-blue-900/30 transition-colors sys-font text-[10px] lg:text-xs flex items-center gap-2 border-blue-500/50">
+                                <i class="fas fa-tools animate-pulse"></i> <span class="hidden sm:inline">AI MECHANIC ✨</span><span class="sm:hidden">CHAT</span>
+                            </button>
+                            <button onclick="openAiDiagnostics()" class="hud-panel px-3 py-1 lg:px-4 lg:py-2 text-neon-yellow hover:bg-yellow-900/30 transition-colors sys-font text-[10px] lg:text-xs flex items-center gap-2 border-yellow-500/50">
+                                <i class="fas fa-brain animate-pulse"></i> <span class="hidden sm:inline">AI CHECK ✨</span><span class="sm:hidden">CHECK</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                         
@@ -357,7 +371,10 @@
                             </div>
                             <div class="flex justify-between items-center mb-2 z-10">
                                 <div class="sys-font text-[10px] lg:text-sm text-cyan-300"><i class="fas fa-shield-alt mr-1"></i>INSURANCE</div>
-                                <button onclick="openUpdateModal('insurance')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
+                                <div class="flex gap-2">
+                                    <button id="btn-view-insurance" class="hidden text-cyan-200 hover:text-white" title="VIEW POLICY DOC"><i class="fas fa-image"></i></button>
+                                    <button onclick="openUpdateModal('insurance')" class="text-cyan-700 hover:text-cyan-300"><i class="fas fa-sync-alt"></i></button>
+                                </div>
                             </div>
                             <div class="text-[8px] text-cyan-600 mb-1 z-10 sys-font truncate" id="m-ins-detail">--</div>
                             <div class="text-[8px] text-gray-400 mb-1 z-10">任意保険更新日</div>
@@ -404,6 +421,19 @@
         </div>
     </div>
 
+    <!-- Image Viewer Modal -->
+    <div id="image-viewer-modal" class="fixed inset-0 modal-overlay z-[70] hidden flex items-center justify-center p-2 lg:p-6">
+        <div class="hud-panel w-full max-w-4xl h-full max-h-screen flex flex-col">
+            <div class="flex justify-between items-center p-3 border-b border-cyan-800 shrink-0">
+                <h3 class="sys-font text-neon-cyan text-xs lg:text-sm"><i class="fas fa-file-alt mr-2"></i>DOCUMENT VIEWER</h3>
+                <button onclick="document.getElementById('image-viewer-modal').classList.add('hidden')" class="text-cyan-700 hover:text-neon-cyan text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 overflow-auto p-2 bg-black/80 flex items-center justify-center">
+                <img id="viewer-image" src="" class="max-w-full max-h-full object-contain border border-cyan-900/50">
+            </div>
+        </div>
+    </div>
+
     <!-- AI Diagnostics Modal -->
     <div id="ai-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-3 lg:p-4">
         <div class="hud-panel w-full max-w-2xl p-4 lg:p-6 border-neon-yellow shadow-[0_0_20px_rgba(255,255,0,0.15)] flex flex-col max-h-[85vh]">
@@ -414,6 +444,25 @@
             <div class="flex-1 overflow-y-auto p-3 bg-black/60 border border-yellow-900/50 rounded">
                 <div id="ai-content" class="text-[10px] lg:text-sm leading-relaxed font-mono break-words">
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Mechanic Chat Modal -->
+    <div id="ai-mechanic-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-3 lg:p-4">
+        <div class="hud-panel w-full max-w-2xl p-4 lg:p-6 border-neon-blue shadow-[0_0_20px_rgba(0,136,255,0.15)] flex flex-col h-[85vh]">
+            <div class="flex justify-between items-center mb-3 border-b border-blue-800 pb-2 shrink-0">
+                <h3 class="sys-font text-neon-blue text-xs lg:text-lg"><i class="fas fa-tools mr-2 animate-pulse"></i>AI MECHANIC PROTOCOL ✨</h3>
+                <button onclick="closeAiMechanic()" class="text-blue-700 hover:text-neon-blue"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-3 bg-black/60 border border-blue-900/50 rounded mb-3 flex flex-col gap-3 text-[10px] lg:text-sm font-mono break-words">
+                <!-- Chat messages injected here -->
+            </div>
+            <div class="flex gap-2 shrink-0">
+                <input type="text" id="chat-input" class="flex-1 text-[10px] lg:text-sm p-2 border-blue-500 text-neon-blue bg-blue-950/20 placeholder-blue-800" placeholder="症状や疑問を入力... (例: ブレーキを踏むと異音がする)" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()" class="px-4 py-2 bg-blue-900/50 text-neon-blue border border-blue-500 hover:bg-blue-600 hover:text-white transition-all sys-font text-xs flex items-center justify-center">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -478,6 +527,8 @@
         let unsubscribeDb = null;
         let vehicles = [];
         let currentVehicleId = null;
+        let aiChatHistory = []; 
+        let tempScannedImages = { shakensho: null, insurance: null }; // 新機能：スキャン中の一時画像保持用
 
         window.showSystemAlert = (title, message) => {
             const existing = document.getElementById('system-alert');
@@ -499,6 +550,31 @@
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', alertHtml);
+        };
+
+        // --- Utility: Resize Image File to Base64 ---
+        const resizeImageFile = (file, maxWidth = 1000) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let scaleSize = maxWidth / img.width;
+                        if (scaleSize > 1) scaleSize = 1;
+                        canvas.width = img.width * scaleSize;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        // 1MB制限を回避するためJPEGで圧縮率高めに設定
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
         };
 
         function updateTime() {
@@ -619,6 +695,15 @@
             document.getElementById('s-owner').innerText = v.owner || '--';
             document.getElementById('s-issue').innerText = v.shakensho.issue || '--';
             document.getElementById('s-expire').innerText = v.shakensho.expire || '--';
+            
+            // 車検証画像 VIEWボタンのトグル
+            const btnViewShakensho = document.getElementById('btn-view-shakensho');
+            if(v.shakensho_image) {
+                btnViewShakensho.classList.remove('hidden');
+                btnViewShakensho.onclick = () => openImageViewer(v.shakensho_image);
+            } else {
+                btnViewShakensho.classList.add('hidden');
+            }
 
             const oilLastDate = v.maintenance?.oil_last_date || '----/--/--';
             const oilLastKm = v.maintenance?.oil_last_km ? Number(v.maintenance.oil_last_km).toLocaleString() + ' km' : '-- km';
@@ -627,6 +712,15 @@
             const insDetail = v.insurance_detail || { company: '', policy_number: '' };
             const insText = insDetail.company ? `${insDetail.company} / ${insDetail.policy_number || '番号不明'}` : 'COMPANY UNREGISTERED';
             document.getElementById('m-ins-detail').innerText = insText;
+
+            // 保険証書画像 VIEWボタンのトグル
+            const btnViewInsurance = document.getElementById('btn-view-insurance');
+            if(v.insurance_image) {
+                btnViewInsurance.classList.remove('hidden');
+                btnViewInsurance.onclick = () => openImageViewer(v.insurance_image);
+            } else {
+                btnViewInsurance.classList.add('hidden');
+            }
 
             // --- 車検サイクルの設定反映 ---
             let shakenCycle = v.maintenance?.shaken_cycle || 2;
@@ -690,6 +784,15 @@
             }
         }
 
+        // --- NEW: Document Viewer ---
+        window.openImageViewer = (base64ImageStr) => {
+            if(!base64ImageStr) return;
+            const viewer = document.getElementById('image-viewer-modal');
+            const imgEl = document.getElementById('viewer-image');
+            imgEl.src = base64ImageStr;
+            viewer.classList.remove('hidden');
+        };
+
         // --- Modal & Global Functions ---
         const modal = document.getElementById('update-modal');
         const modalTitle = document.getElementById('modal-title');
@@ -701,11 +804,13 @@
             modal.classList.add('hidden');
             modalTitle.classList.remove('text-neon-red');
             modalTitle.classList.add('text-neon-cyan');
+            // 一時画像をリセット
+            tempScannedImages = { shakensho: null, insurance: null };
         };
 
         window.closeAiModal = () => {
             document.getElementById('ai-modal').classList.add('hidden');
-            document.getElementById('ai-content').innerHTML = ''; // reset
+            document.getElementById('ai-content').innerHTML = ''; 
         }
 
         window.openAuthModal = () => {
@@ -747,6 +852,12 @@
                 return;
             }
 
+            if (action === 'register' && pass.length < 6) {
+                errEl.innerText = "ERROR: PASSWORD MUST BE AT LEAST 6 CHARACTERS.";
+                errEl.classList.remove('hidden');
+                return;
+            }
+
             try {
                 if (action === 'login') {
                     await signInWithEmailAndPassword(auth, email, pass);
@@ -779,6 +890,7 @@
         window.openAddVehicleModal = () => {
             modalTitle.innerText = "INITIALIZE NEW VEHICLE";
             modalTargetType.value = "new_vehicle";
+            tempScannedImages = { shakensho: null, insurance: null }; // 新規登録用にリセット
             modalFields.innerHTML = `
                 <div class="flex flex-col gap-2 mb-2 border-b border-cyan-800 pb-3">
                     <button type="button" onclick="document.getElementById('shakensho-scan').click()" class="hud-panel w-full py-2 lg:py-3 text-cyan-300 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-[10px] lg:text-xs flex items-center justify-center gap-2 border-cyan-500">
@@ -850,11 +962,18 @@
             if(!currentVehicleId) return;
             const v = vehicles.find(v => v.id === currentVehicleId);
             modalTargetType.value = type;
+            tempScannedImages = { shakensho: null, insurance: null }; // リセット
             
             let html = '';
             if (type === 'shakensho') {
                 modalTitle.innerText = "UPDATE CERTIFICATE DATA";
                 html = `
+                    <div class="flex flex-col gap-2 mb-2 border-b border-cyan-800 pb-3">
+                        <button type="button" onclick="document.getElementById('shakensho-scan').click()" class="hud-panel w-full py-2 lg:py-3 text-cyan-300 hover:bg-cyan-900/50 hover:text-white transition-colors sys-font text-[10px] lg:text-xs flex items-center justify-center gap-2 border-cyan-500">
+                            <i class="fas fa-camera text-base lg:text-lg"></i> SCAN CERTIFICATE (AUTO-FILL)
+                        </button>
+                        <div id="scan-status" class="text-center text-[8px] lg:text-[10px] text-neon-yellow hidden animate-pulse mt-1">ANALYZING IMAGE DATA...</div>
+                    </div>
                     <div class="text-[10px] lg:text-xs text-cyan-500 mb-1">DOCUMENT ID</div>
                     <input type="text" id="inp-sid" value="${v.shakensho.id || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
                     <div class="text-[10px] lg:text-xs text-cyan-500 mb-1 mt-2">ISSUE DATE</div>
@@ -863,7 +982,6 @@
                     <input type="date" id="inp-sexpire" value="${v.shakensho.expire || ''}" required class="text-xs lg:text-sm p-1.5 lg:p-2">
                 `;
             } else if (type === 'shaken') {
-                // --- 手動で車検サイクルを更新できるUI ---
                 modalTitle.innerText = `UPDATE INSPECTION DEADLINE`;
                 const currentCycle = v.maintenance?.shaken_cycle || 2;
                 html = `
@@ -923,6 +1041,113 @@
             }
             modalFields.innerHTML = html;
             modal.classList.remove('hidden');
+        };
+
+        // --- AI Features ---
+        window.openAiMechanic = () => {
+            if(!currentVehicleId) return;
+            const v = vehicles.find(v => v.id === currentVehicleId);
+            
+            document.getElementById('ai-mechanic-modal').classList.remove('hidden');
+            const chatBox = document.getElementById('chat-messages');
+            
+            aiChatHistory = []; 
+            chatBox.innerHTML = `<div class="text-cyan-400 text-[10px] lg:text-xs opacity-70 mb-2 text-center border-b border-blue-900/50 pb-2">--- AI MECHANIC ONLINE. VEHICLE DATA LOADED: ${v.maker || ''} ${v.name} ---<br>車の不調やメンテナンスについて質問してください。</div>`;
+        };
+
+        window.closeAiMechanic = () => {
+            document.getElementById('ai-mechanic-modal').classList.add('hidden');
+        };
+
+        window.sendChatMessage = async () => {
+            const inputEl = document.getElementById('chat-input');
+            const msg = inputEl.value.trim();
+            if(!msg) return;
+
+            const v = vehicles.find(v => v.id === currentVehicleId);
+            const savedApiKey = (localStorage.getItem('gemini_api_key') || "").trim();
+            const chatBox = document.getElementById('chat-messages');
+
+            chatBox.innerHTML += `<div class="self-end bg-blue-900/40 border border-blue-800 p-2 rounded max-w-[85%] text-cyan-50 ml-auto mb-1">${msg}</div>`;
+            inputEl.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const loadingId = 'loading-' + Date.now();
+            chatBox.innerHTML += `<div id="${loadingId}" class="self-start text-neon-blue animate-pulse text-[10px] lg:text-xs mt-1 mb-2"><i class="fas fa-circle-notch fa-spin"></i> ANALYZING SYMPTOMS...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (aiChatHistory.length === 0) {
+                const systemPrompt = `あなたはサイバーパンクな車両管理システム「VEHICLE SYS-COM」に搭載された、超優秀なプロの自動車整備士AIです。
+ユーザーは現在、以下の車両について質問しています。
+【対象車両】${v.maker || 'メーカー不明'} ${v.name} (年式: ${v.year || '不明'})
+
+要件：
+- 専門的かつ分かりやすく、実践的なアドバイスを提供してください。
+- 危険な症状（ブレーキの異音や警告灯など）の場合は、直ちに運転を中止し整備工場へ行くよう強く警告してください。
+- トーンは冷静で機械的、かつ頼りになるシステムアシスタント風にしてください（「〜と推測されます」「ステータス：警告」など）。
+- 出力はHTMLタグ（<br>, <strong>, <ul>, <li>）を使用し、Markdownは使用しないでください。重要な箇所は class="text-neon-yellow" などのTailwindカラーで強調してください。`;
+                aiChatHistory.push({ role: "user", parts: [{ text: systemPrompt + "\n\nユーザーからの質問: " + msg }] });
+            } else {
+                aiChatHistory.push({ role: "user", parts: [{ text: msg }] });
+            }
+
+            try {
+                const modelsToTry = savedApiKey 
+                    ? ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"] 
+                    : ["gemini-2.5-flash-preview-09-2025"];
+
+                const payload = {
+                    contents: aiChatHistory,
+                    generationConfig: { temperature: 0.7 }
+                };
+
+                let resultJson = null;
+                let lastErrorMsg = "";
+
+                for (const model of modelsToTry) {
+                    try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${savedApiKey}`;
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        if (!response.ok) {
+                            const errData = await response.json().catch(() => ({}));
+                            throw new Error(`HTTP ${response.status} (${model}): ${errData?.error?.message || 'Unknown Error'}`);
+                        }
+                        
+                        resultJson = await response.json();
+                        break; 
+                    } catch (err) {
+                        lastErrorMsg = err.message;
+                        await new Promise(res => setTimeout(res, 1000));
+                    }
+                }
+
+                document.getElementById(loadingId)?.remove();
+
+                if (!resultJson) throw new Error(lastErrorMsg);
+
+                const aiText = resultJson.candidates[0].content.parts[0].text.replace(/```html|```/g, ''); 
+                
+                aiChatHistory.push({ role: "model", parts: [{ text: aiText }] });
+
+                chatBox.innerHTML += `<div class="self-start bg-black/60 border border-blue-500/50 p-3 rounded max-w-[90%] text-cyan-100 mr-auto mb-2">${aiText}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+                document.getElementById(loadingId)?.remove();
+                console.error("AI Chat Error:", error);
+                let errMsg = error.message;
+                if (errMsg.includes("404")) {
+                    errMsg += "<br><span class='text-yellow-400 text-[10px]'>※Google AI StudioのAPIキーか確認してください。</span>";
+                }
+                chatBox.innerHTML += `<div class="self-start text-neon-red text-[10px] border border-red-800 bg-red-900/20 p-2 mb-2"><i class="fas fa-exclamation-triangle"></i> ERROR: ${errMsg}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+                aiChatHistory.pop();
+            }
         };
 
         window.openAiDiagnostics = async () => {
@@ -1017,7 +1242,11 @@
 
             } catch (error) {
                 console.error("AI Error:", error);
-                const msg = savedApiKey ? `AI CORE UNREACHABLE.<br>${error.message}` : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
+                let errMsg = error.message;
+                if (errMsg.includes("404")) {
+                    errMsg += "<br><br><span class='text-yellow-400'>※FirebaseのAPIキーではなく、Google AI Studio専用のAPIキーを設定しているか確認してください。</span>";
+                }
+                const msg = savedApiKey ? `AI CORE UNREACHABLE.<br>${errMsg}` : "API KEY MISSING. PLEASE CONFIGURE SYSTEM.";
                 aiContent.innerHTML = `<div class="text-neon-red text-center mt-10"><i class="fas fa-exclamation-triangle text-2xl lg:text-4xl mb-4"></i><br>ERROR: ${msg}</div>`;
             }
         };
@@ -1035,15 +1264,12 @@
             statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-yellow animate-pulse mt-2";
 
             try {
-                const base64String = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                    reader.readAsDataURL(file);
-                });
-
-                const mimeType = base64String.split(';')[0].split(':')[1];
-                const base64Data = base64String.split(',')[1];
+                // --- ファイルをリサイズしてBase64に変換し、プレビュー用に一時保存 ---
+                const base64DataUrl = await resizeImageFile(file, 1000); 
+                tempScannedImages.shakensho = base64DataUrl;
+                
+                const mimeType = base64DataUrl.split(';')[0].split(':')[1];
+                const base64Data = base64DataUrl.split(',')[1];
                 
                 const modelsToTry = savedApiKey 
                     ? ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"] 
@@ -1109,12 +1335,13 @@
                 if (resultJson.issueDate) document.getElementById('inp-sissue').value = resultJson.issueDate;
                 if (resultJson.expireDate) document.getElementById('inp-sexpire').value = resultJson.expireDate;
                 
-                statusEl.innerText = "DATA EXTRACTED SUCCESSFULLY";
+                statusEl.innerHTML = "DATA EXTRACTED SUCCESSFULLY<br><span class='text-[8px]'>IMAGE SAVED IN MEMORY</span>";
                 statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-green mt-2";
             } catch (error) {
                 console.error("Scan Error Details:", error);
                 statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${error.message}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
                 statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-red mt-2";
+                tempScannedImages.shakensho = null;
             }
             event.target.value = '';
         };
@@ -1132,15 +1359,12 @@
             statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-yellow animate-pulse mt-2";
 
             try {
-                const base64String = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                    reader.readAsDataURL(file);
-                });
+                // --- ファイルをリサイズしてBase64に変換し、プレビュー用に一時保存 ---
+                const base64DataUrl = await resizeImageFile(file, 1000); 
+                tempScannedImages.insurance = base64DataUrl;
 
-                const mimeType = base64String.split(';')[0].split(':')[1];
-                const base64Data = base64String.split(',')[1];
+                const mimeType = base64DataUrl.split(';')[0].split(':')[1];
+                const base64Data = base64DataUrl.split(',')[1];
                 
                 const modelsToTry = savedApiKey 
                     ? ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"] 
@@ -1200,12 +1424,13 @@
                 if (resultJson.policyNumber) document.getElementById('inp-ins-policy').value = resultJson.policyNumber;
                 if (resultJson.expireDate) document.getElementById('inp-date').value = resultJson.expireDate;
                 
-                statusEl.innerText = "DATA EXTRACTED SUCCESSFULLY";
+                statusEl.innerHTML = "DATA EXTRACTED SUCCESSFULLY<br><span class='text-[8px]'>IMAGE SAVED IN MEMORY</span>";
                 statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-green mt-2";
             } catch (error) {
                 console.error("Scan Error Details:", error);
                 statusEl.innerHTML = savedApiKey ? `SCAN FAILED.<br><span class="text-[8px] opacity-80">${error.message}</span>` : "SCAN FAILED. PLEASE ENTER MANUALLY.";
                 statusEl.className = "text-center text-[8px] lg:text-[10px] text-neon-red mt-2";
+                tempScannedImages.insurance = null;
             }
             event.target.value = '';
         };
@@ -1226,36 +1451,18 @@
             modal.classList.remove('hidden');
         };
 
-        window.handleImageUpload = (event) => {
+        window.handleImageUpload = async (event) => {
             const file = event.target.files[0];
             if (!file || !currentVehicleId || !userId) return;
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = async function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600;
-                    let scaleSize = 1;
-                    if (img.width > MAX_WIDTH) {
-                        scaleSize = MAX_WIDTH / img.width;
-                    }
-                    canvas.width = img.width * scaleSize;
-                    canvas.height = img.height * scaleSize;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
-                    try {
-                        const vRef = doc(db, 'artifacts', appId, 'users', userId, 'vehicles', currentVehicleId);
-                        await setDoc(vRef, { image: dataUrl }, { merge: true });
-                    } catch (error) {
-                        console.error("Image Upload Error", error);
-                    }
-                }
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+            try {
+                // Resize image helper を利用
+                const dataUrl = await resizeImageFile(file, 600);
+                const vRef = doc(db, 'artifacts', appId, 'users', userId, 'vehicles', currentVehicleId);
+                await setDoc(vRef, { image: dataUrl }, { merge: true });
+            } catch (error) {
+                console.error("Image Upload Error", error);
+            }
             event.target.value = '';
         };
 
@@ -1278,13 +1485,12 @@
                     const issueVal = document.getElementById('inp-sissue')?.value || '2024-01-01';
                     const expireVal = document.getElementById('inp-sexpire')?.value || '2026-01-01';
                     
-                    // --- 交付日と満了日から、自動で車検サイクルを判定 ---
                     let cycle = 2;
                     if (issueVal && expireVal) {
                         const diff = Math.ceil((new Date(expireVal) - new Date(issueVal)) / (1000 * 60 * 60 * 24));
-                        if (diff > 800) cycle = 3; // 約3年
-                        else if (diff > 500) cycle = 2; // 約2年
-                        else if (diff > 0) cycle = 1; // 1年
+                        if (diff > 800) cycle = 3; 
+                        else if (diff > 500) cycle = 2; 
+                        else if (diff > 0) cycle = 1; 
                     }
 
                     const newVehicleData = {
@@ -1293,6 +1499,8 @@
                         maker: document.getElementById('inp-maker')?.value || 'UNKNOWN', 
                         year: '----', owner: 'SYS-USER',
                         image: null,
+                        shakensho_image: tempScannedImages.shakensho || null,
+                        insurance_image: tempScannedImages.insurance || null,
                         shakensho: { 
                             id: document.getElementById('inp-sid')?.value || '----------', 
                             issue: issueVal, 
@@ -1325,7 +1533,8 @@
                         updatedData.shakensho.expire = document.getElementById('inp-sexpire').value;
                         updatedData.maintenance.shaken = updatedData.shakensho.expire;
                         
-                        // 車検証データ上書き時も自動判定
+                        if (tempScannedImages.shakensho) updatedData.shakensho_image = tempScannedImages.shakensho;
+
                         const issueD = new Date(updatedData.shakensho.issue);
                         const expireD = new Date(updatedData.shakensho.expire);
                         if (!isNaN(issueD) && !isNaN(expireD)) {
@@ -1336,7 +1545,6 @@
                         }
                     } else if (type === 'shaken') {
                         updatedData.maintenance.shaken = document.getElementById('inp-date').value;
-                        // ユーザーが手動で設定したサイクルを保存
                         updatedData.maintenance.shaken_cycle = parseInt(document.getElementById('inp-shaken-cycle').value, 10) || 2;
                     } else if (type === 'oil') {
                         updatedData.maintenance.oil_last_date = document.getElementById('inp-oil-last-date').value;
@@ -1348,6 +1556,8 @@
                             policy_number: document.getElementById('inp-ins-policy').value
                         };
                         updatedData.maintenance.insurance = document.getElementById('inp-date').value;
+                        
+                        if (tempScannedImages.insurance) updatedData.insurance_image = tempScannedImages.insurance;
                     } else {
                         updatedData.maintenance[type] = document.getElementById('inp-date').value;
                     }
